@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import io
 import os
 import re
@@ -123,7 +122,7 @@ setup(
     },
     license='AGPL',
     zip_safe=False,
-    keywords='udata, harvester, OpenDataSoft',
+    keywords='udata harvester OpenDataSoft',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python',
