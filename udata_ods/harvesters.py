@@ -28,21 +28,25 @@ class OdsBackend(BaseBackend):
     }
 
     @property
+    def source_url(self):
+        return self.source.url.rstrip('/')
+
+    @property
     def api_url(self):
-        return "{0}/api/datasets/1.0/search/".format(self.source.url)
+        return "{0}/api/datasets/1.0/search/".format(self.source_url)
 
     def _get_download_url(self, dataset_id, format):
         return ("%s/explore/dataset/%s/download"
                 "?format=%s&timezone=Europe/Berlin"
-                "&use_labels_for_header=true") % (self.source.url,
+                "&use_labels_for_header=true") % (self.source_url,
                                                   dataset_id,
                                                   format)
 
     def _get_explore_url(self, dataset_id):
-        return "%s/explore/dataset/%s/" % (self.source.url, dataset_id)
+        return "%s/explore/dataset/%s/" % (self.source_url, dataset_id)
 
     def _get_export_url(self, dataset_id):
-        return "%s/explore/dataset/%s/?tab=export" % (self.source.url,
+        return "%s/explore/dataset/%s/?tab=export" % (self.source_url,
                                                       dataset_id)
 
     def initialize(self):

@@ -11,7 +11,6 @@ from udata.models import Dataset, License
 from udata.core.organization.factories import OrganizationFactory
 from udata.harvest import actions
 from udata.harvest.tests.factories import HarvestSourceFactory
-from udata.utils import faker
 
 from udata_ods.harvesters import OdsBackend
 
@@ -19,6 +18,7 @@ DATA_DIR = join(dirname(__file__), 'data')
 ODS_URL = 'http://etalab-sandbox.opendatasoft.com'
 
 pytestmark = pytest.mark.usefixtures('clean_db')
+
 
 def ods_response(filename):
     filename = join(DATA_DIR, filename)
@@ -129,3 +129,19 @@ def test_simple():
 
     # test-d is INSPIRE
     assert 'test-d' not in datasets
+
+
+@pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])
+def test_urls_format(url):
+    source = HarvestSourceFactory(url=url)
+    backend = OdsBackend(source)
+
+    assert backend.api_url == 'http://domain.com/api/datasets/1.0/search/'
+
+    explore_url = backend._get_explore_url('id')
+    download_url = backend._get_download_url('id', 'format')
+    export_url = backend._get_export_url('id')
+
+    assert explore_url == 'http://domain.com/explore/dataset/id/'
+    assert download_url.startswith(explore_url)
+    assert export_url.startswith(explore_url)
