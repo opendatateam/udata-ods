@@ -35,19 +35,16 @@ class OdsBackend(BaseBackend):
     def api_url(self):
         return "{0}/api/datasets/1.0/search/".format(self.source_url)
 
-    def _get_download_url(self, dataset_id, format):
-        return ("%s/explore/dataset/%s/download"
-                "?format=%s&timezone=Europe/Berlin"
-                "&use_labels_for_header=true") % (self.source_url,
-                                                  dataset_id,
-                                                  format)
+    def explore_url(self, dataset_id):
+        return "{0}/explore/dataset/{1}/".format(self.source_url, dataset_id)
 
-    def _get_explore_url(self, dataset_id):
-        return "%s/explore/dataset/%s/" % (self.source_url, dataset_id)
+    def download_url(self, dataset_id, format):
+        return ("{0}download?format={1}&timezone=Europe/Berlin"
+                "&use_labels_for_header=true"
+                ).format(self.explore_url(dataset_id), format)
 
-    def _get_export_url(self, dataset_id):
-        return "%s/explore/dataset/%s/?tab=export" % (self.source_url,
-                                                      dataset_id)
+    def export_url(self, dataset_id):
+        return "{0}?tab=export".format(self.explore_url(dataset_id))
 
     def initialize(self):
         count = 0
@@ -128,7 +125,7 @@ class OdsBackend(BaseBackend):
         if 'geo' in ods_dataset['features']:
             self.process_resources(dataset, ods_dataset, ('geojson', 'shp'))
 
-        dataset.extras["ods:url"] = self._get_explore_url(dataset_id)
+        dataset.extras["ods:url"] = self.explore_url(dataset_id)
         if "references" in ods_metadata:
             dataset.extras["ods:references"] = ods_metadata["references"]
         dataset.extras["ods:has_records"] = ods_dataset["has_records"]
@@ -145,7 +142,7 @@ class OdsBackend(BaseBackend):
                 title='Export au format {0}'.format(label),
                 description=description,
                 filetype='remote',
-                url=self._get_download_url(dataset_id, format),
+                url=self.download_url(dataset_id, format),
                 format=udata_format,
                 mime=mime)
             resource.modified = ods_metadata["modified"]

@@ -136,11 +136,12 @@ def test_urls_format(url):
     source = HarvestSourceFactory(url=url)
     backend = OdsBackend(source)
 
+    assert backend.source_url == 'http://domain.com'
     assert backend.api_url == 'http://domain.com/api/datasets/1.0/search/'
 
-    explore_url = backend._get_explore_url('id')
-    download_url = backend._get_download_url('id', 'format')
-    export_url = backend._get_export_url('id')
+    explore_url = backend.explore_url('id')
+    download_url = backend.download_url('id', 'format')
+    export_url = backend.export_url('id')
 
     assert explore_url == 'http://domain.com/explore/dataset/id/'
     assert download_url.startswith(explore_url)
