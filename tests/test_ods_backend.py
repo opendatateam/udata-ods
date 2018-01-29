@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from datetime import datetime
 from os.path import join, dirname
 
-import httpretty
 import pytest
 
 from udata.models import Dataset, License
@@ -26,8 +25,7 @@ def ods_response(filename):
         return f.read()
 
 
-@pytest.mark.httpretty
-def test_simple():
+def test_simple(httpretty):
     for license_id in set(OdsBackend.LICENSES.values()):
         License.objects.create(id=license_id, title=license_id)
 
