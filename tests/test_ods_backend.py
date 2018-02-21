@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 from os.path import join, dirname
+from urlparse import parse_qs, urlparse
 
 import pytest
 
@@ -25,7 +26,8 @@ def ods_response(filename):
         return f.read()
 
 
-def test_simple(httpretty):
+@pytest.mark.options(PLUGINS=['ods'])
+def test_simple(rmock):
     for license_id in set(OdsBackend.LICENSES.values()):
         License.objects.create(id=license_id, title=license_id)
 
@@ -35,13 +37,12 @@ def test_simple(httpretty):
                                   organization=org)
 
     api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    httpretty.register_uri(httpretty.GET, api_url,
-                           body=ods_response('search.json'),
-                           content_type='application/json')
+    rmock.get(api_url, text=ods_response('search.json'),
+              headers={'Content-Type': 'application/json'})
 
     actions.run(source.slug)
 
-    assert httpretty.last_request().querystring == {
+    assert parse_qs(urlparse(rmock.last_request.url).query) == {
         'start': ['0'], 'rows': ['50'], 'interopmetas': ['true']
     }
 
@@ -127,7 +128,6 @@ def test_simple(httpretty):
 
     # test-d is INSPIRE
     assert 'test-d' not in datasets
-
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])
 def test_urls_format(url):
