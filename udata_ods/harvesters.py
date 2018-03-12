@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from mimetypes import guess_extension
+
 import html2text
 from dateutil.parser import parse as parse_date
 
@@ -151,6 +153,7 @@ class OdsBackend(BaseBackend):
                 data['description'] = export['description']
             if 'mimetype' in export:
                 data['mime'] = export['mimetype']
+                data['format'] = self.guess_format(export['mimetype'])
             data['url'] = self.alternative_export_url(dataset_id, export['id'])
             resource = Resource(**data)
             resource.modified = modified_at
@@ -191,3 +194,9 @@ class OdsBackend(BaseBackend):
             return parse_date(date_str)
         except ValueError:
             pass
+
+    def guess_format(self, mimetype):
+        ext = guess_extension(mimetype)
+        if ext:
+            ext = ext.replace('.', '')
+        return ext

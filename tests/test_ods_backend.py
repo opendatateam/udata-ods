@@ -126,7 +126,7 @@ def test_simple(rmock):
     resource = test_b.resources[4]
     assert resource.title == 'gtfs.zip'
     assert resource.description == 'GTFS 15/01'
-    assert resource.format is None
+    assert resource.format == 'zip'
     assert resource.mime == 'application/zip'
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/alternative_exports'
