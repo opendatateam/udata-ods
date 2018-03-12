@@ -38,6 +38,10 @@ class OdsBackend(BaseBackend):
     def explore_url(self, dataset_id):
         return "{0}/explore/dataset/{1}/".format(self.source_url, dataset_id)
 
+    def alternative_export_url(self, dataset_id, export_id):
+        return "{0}/api/datasets/1.0/{1}/alternative_exports/{2}".format(
+            self.source_url, dataset_id, export_id)
+
     def download_url(self, dataset_id, format):
         return ("{0}download?format={1}&timezone=Europe/Berlin"
                 "&use_labels_for_header=true"
@@ -125,6 +129,10 @@ class OdsBackend(BaseBackend):
         if 'geo' in ods_dataset['features']:
             self.process_resources(dataset, ods_dataset, ('geojson', 'shp'))
 
+        if 'alternative_exports' in ods_dataset:
+            for export in ods_dataset['alternative_exports']:
+                self.process_alternative_exports(dataset, ods_dataset)
+
         dataset.extras["ods:url"] = self.explore_url(dataset_id)
         if "references" in ods_metadata:
             dataset.extras["ods:references"] = ods_metadata["references"]
@@ -132,17 +140,33 @@ class OdsBackend(BaseBackend):
 
         return dataset
 
+    def process_alternative_exports(self, dataset, data):
+        dataset_id = data['datasetid']
+        modified_at = data['metas']['modified']
+        for export in data['alternative_exports']:
+            data = {
+                'title': export.get('title', 'No title'),
+            }
+            if 'description' in export:
+                data['description'] = export['description']
+            if 'mimetype' in export:
+                data['mime'] = export['mimetype']
+            data['url'] = self.alternative_export_url(dataset_id, export['id'])
+            resource = Resource(**data)
+            resource.modified = modified_at
+            dataset.resources.append(resource)
+
     def process_resources(self, dataset, data, formats):
         dataset_id = data["datasetid"]
         ods_metadata = data["metas"]
         description = self.description_from_fields(data['fields'])
-        for format in formats:
-            label, udata_format, mime = self.FORMATS[format]
+        for _format in formats:
+            label, udata_format, mime = self.FORMATS[_format]
             resource = Resource(
                 title='Export au format {0}'.format(label),
                 description=description,
                 filetype='remote',
-                url=self.download_url(dataset_id, format),
+                url=self.download_url(dataset_id, _format),
                 format=udata_format,
                 mime=mime)
             resource.modified = ods_metadata["modified"]

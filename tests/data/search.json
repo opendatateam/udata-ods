@@ -21,6 +21,15 @@
         "has_records": true,
         "features": ["geo"],
         "attachments": [],
+        "alternative_exports":[
+           {
+              "url":"odsfile://gtfs5.zip",
+              "mimetype":"application/zip",
+              "title":"gtfs.zip",
+              "description":"GTFS 15/01",
+              "id":"gtfs_zip"
+           }
+        ],
         "fields": [{
             "label": "test",
             "type": "text",
