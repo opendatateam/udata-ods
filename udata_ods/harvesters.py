@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import html2text
+from dateutil.parser import parse as parse_date
 
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
@@ -141,7 +142,7 @@ class OdsBackend(BaseBackend):
 
     def process_alternative_exports(self, dataset, data):
         dataset_id = data['datasetid']
-        modified_at = data['metas']['modified']
+        modified_at = self.parse_date(data['metas']['modified'])
         for export in data['alternative_exports']:
             data = {
                 'title': export.get('title', 'No title'),
@@ -156,8 +157,9 @@ class OdsBackend(BaseBackend):
             dataset.resources.append(resource)
 
     def process_resources(self, dataset, data, formats):
-        dataset_id = data["datasetid"]
-        ods_metadata = data["metas"]
+        dataset_id = data['datasetid']
+        ods_metadata = data['metas']
+        modified_at = self.parse_date(ods_metadata['modified'])
         description = self.description_from_fields(data['fields'])
         for _format in formats:
             label, udata_format, mime = self.FORMATS[_format]
@@ -168,7 +170,7 @@ class OdsBackend(BaseBackend):
                 url=self.download_url(dataset_id, _format),
                 format=udata_format,
                 mime=mime)
-            resource.modified = ods_metadata["modified"]
+            resource.modified = modified_at
             dataset.resources.append(resource)
 
     def description_from_fields(self, fields):
@@ -183,3 +185,9 @@ class OdsBackend(BaseBackend):
                 out += ' {description}'.format(**field)
             out += '\n'
         return out
+
+    def parse_date(self, date_str):
+        try:
+            return parse_date(date_str)
+        except ValueError:
+            pass
