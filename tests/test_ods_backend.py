@@ -50,7 +50,6 @@ def test_simple(rmock):
 
     job = source.get_last_job()
     assert len(job.items) == 4
-    print([(i.status, [e.message for e in i.errors]) for i in job.items])
     assert job.status == 'done'
 
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
