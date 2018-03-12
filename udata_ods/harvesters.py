@@ -130,8 +130,7 @@ class OdsBackend(BaseBackend):
             self.process_resources(dataset, ods_dataset, ('geojson', 'shp'))
 
         if 'alternative_exports' in ods_dataset:
-            for export in ods_dataset['alternative_exports']:
-                self.process_alternative_exports(dataset, ods_dataset)
+            self.process_alternative_exports(dataset, ods_dataset)
 
         dataset.extras["ods:url"] = self.explore_url(dataset_id)
         if "references" in ods_metadata:
