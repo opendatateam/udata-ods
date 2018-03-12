@@ -138,6 +138,14 @@ def test_simple(rmock):
     # test-d is INSPIRE
     assert 'test-d' not in datasets
 
+    # run one more time (test idempotent)
+    actions.run(source.slug)
+    source.reload()
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 2
+    test_b = datasets['test-b']
+    assert len(test_b.resources) == 5
+
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])
 def test_urls_format(url):
