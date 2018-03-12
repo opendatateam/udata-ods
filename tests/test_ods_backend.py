@@ -50,6 +50,7 @@ def test_simple(rmock):
 
     job = source.get_last_job()
     assert len(job.items) == 4
+    print([(i.status, [e.message for e in i.errors]) for i in job.items])
     assert job.status == 'done'
 
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
@@ -104,6 +105,7 @@ def test_simple(rmock):
                            'spatial-planning',
                            'town-planning']
     assert len(test_b.resources) == 5
+    resource_ids = set([r.id for r in test_b.resources])
     resource = test_b.resources[2]
     assert resource.title == 'Export au format GeoJSON'
     assert resource.description is not None
@@ -138,13 +140,22 @@ def test_simple(rmock):
     # test-d is INSPIRE
     assert 'test-d' not in datasets
 
-    # run one more time (test idempotent)
+    # run one more time (test idempotent and resource update)
+    response = ods_response('search.json')
+    response = response.replace('gtfs.zip', 'new')
+    rmock.get(api_url, text=response,
+              headers={'Content-Type': 'application/json'})
     actions.run(source.slug)
     source.reload()
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
     assert len(datasets) == 2
     test_b = datasets['test-b']
     assert len(test_b.resources) == 5
+    new_resource_ids = set([r.id for r in test_b.resources])
+    # resources ids stay the same
+    assert new_resource_ids == resource_ids
+    resource = test_b.resources[4]
+    assert resource.title == 'new'
 
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])

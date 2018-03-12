@@ -9,6 +9,7 @@ from dateutil.parser import parse as parse_date
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
+from udata.utils import get_by
 
 
 class OdsBackend(BaseBackend):
@@ -125,8 +126,6 @@ class OdsBackend(BaseBackend):
                                         self.LICENSES.get(license_id),
                                         default=default_license)
 
-        dataset.resources = []
-
         self.process_resources(dataset, ods_dataset, ('csv', 'json'))
 
         if 'geo' in ods_dataset['features']:
@@ -146,18 +145,23 @@ class OdsBackend(BaseBackend):
         dataset_id = data['datasetid']
         modified_at = self.parse_date(data['metas']['modified'])
         for export in data['alternative_exports']:
-            data = {
-                'title': export.get('title', 'No title'),
-            }
+            url = self.alternative_export_url(dataset_id, export['id'])
+            created, resource = self.get_resource(dataset, url)
+            resource.title = export.get('title', 'No title')
             if 'description' in export:
-                data['description'] = export['description']
+                resource.description = export['description']
             if 'mimetype' in export:
-                data['mime'] = export['mimetype']
-                data['format'] = self.guess_format(export['mimetype'])
-            data['url'] = self.alternative_export_url(dataset_id, export['id'])
-            resource = Resource(**data)
+                resource.mime = export['mimetype']
+                resource.format = self.guess_format(export['mimetype'])
             resource.modified = modified_at
-            dataset.resources.append(resource)
+            if created:
+                dataset.resources.append(resource)
+
+    def get_resource(self, dataset, url):
+        resource = get_by(dataset.resources, 'url', url)
+        if not resource:
+            return True, Resource(url=url)
+        return False, resource
 
     def process_resources(self, dataset, data, formats):
         dataset_id = data['datasetid']
@@ -166,15 +170,16 @@ class OdsBackend(BaseBackend):
         description = self.description_from_fields(data['fields'])
         for _format in formats:
             label, udata_format, mime = self.FORMATS[_format]
-            resource = Resource(
-                title='Export au format {0}'.format(label),
-                description=description,
-                filetype='remote',
-                url=self.download_url(dataset_id, _format),
-                format=udata_format,
-                mime=mime)
+            url = self.download_url(dataset_id, _format)
+            created, resource = self.get_resource(dataset, url)
+            resource.title = 'Export au format {0}'.format(label)
+            resource.description = description
+            resource.filetype = 'remote'
+            resource.format = udata_format
+            resource.mime = mime
             resource.modified = modified_at
-            dataset.resources.append(resource)
+            if created:
+                dataset.resources.append(resource)
 
     def description_from_fields(self, fields):
         '''Build a resource description/schema from ODS API fields'''
