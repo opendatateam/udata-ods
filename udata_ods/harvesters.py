@@ -9,6 +9,7 @@ from dateutil.parser import parse as parse_date
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
+from udata.utils import get_by
 
 
 class OdsBackend(BaseBackend):
@@ -16,11 +17,11 @@ class OdsBackend(BaseBackend):
     verify_ssl = False
 
     LICENSES = {
-        "Open Database License (ODbL)": "odc-odbl",
-        "Licence Ouverte (Etalab)": "fr-lo",
-        "Licence ouverte / Open Licence": "fr-lo",
-        "CC BY-SA": "cc-by-sa",
-        "Public Domain": "other-pd"
+        'Open Database License (ODbL)': 'odc-odbl',
+        'Licence Ouverte (Etalab)': 'fr-lo',
+        'Licence ouverte / Open Licence': 'fr-lo',
+        'CC BY-SA': 'cc-by-sa',
+        'Public Domain': 'other-pd'
     }
 
     FORMATS = {
@@ -36,22 +37,22 @@ class OdsBackend(BaseBackend):
 
     @property
     def api_url(self):
-        return "{0}/api/datasets/1.0/search/".format(self.source_url)
+        return '{0}/api/datasets/1.0/search/'.format(self.source_url)
 
     def explore_url(self, dataset_id):
-        return "{0}/explore/dataset/{1}/".format(self.source_url, dataset_id)
+        return '{0}/explore/dataset/{1}/'.format(self.source_url, dataset_id)
 
     def alternative_export_url(self, dataset_id, export_id):
-        return "{0}/api/datasets/1.0/{1}/alternative_exports/{2}".format(
+        return '{0}/api/datasets/1.0/{1}/alternative_exports/{2}'.format(
             self.source_url, dataset_id, export_id)
 
     def download_url(self, dataset_id, format):
-        return ("{0}download?format={1}&timezone=Europe/Berlin"
-                "&use_labels_for_header=true"
+        return ('{0}download?format={1}&timezone=Europe/Berlin'
+                '&use_labels_for_header=true'
                 ).format(self.explore_url(dataset_id), format)
 
     def export_url(self, dataset_id):
-        return "{0}?tab=export".format(self.explore_url(dataset_id))
+        return '{0}?tab=export'.format(self.explore_url(dataset_id))
 
     def initialize(self):
         count = 0
@@ -65,21 +66,21 @@ class OdsBackend(BaseBackend):
 
         while should_fetch():
             response = self.get(self.api_url, params={
-                "start": count,
-                "rows": 50,
-                "interopmetas": 'true',
+                'start': count,
+                'rows': 50,
+                'interopmetas': 'true',
             })
             response.raise_for_status()
             data = response.json()
-            nhits = data["nhits"]
-            for dataset in data["datasets"]:
+            nhits = data['nhits']
+            for dataset in data['datasets']:
                 count += 1
-                self.add_item(dataset["datasetid"], dataset=dataset)
+                self.add_item(dataset['datasetid'], dataset=dataset)
 
     def process(self, item):
-        ods_dataset = item.kwargs["dataset"]
-        dataset_id = ods_dataset["datasetid"]
-        ods_metadata = ods_dataset["metas"]
+        ods_dataset = item.kwargs['dataset']
+        dataset_id = ods_dataset['datasetid']
+        ods_metadata = ods_dataset['metas']
         ods_interopmetas = ods_dataset.get('interop_metas', {})
 
         if not ods_dataset.get('has_records'):
@@ -94,26 +95,26 @@ class OdsBackend(BaseBackend):
         dataset = self.get_dataset(item.remote_id)
 
         dataset.title = ods_metadata['title']
-        dataset.frequency = "unknown"
-        description = ods_metadata.get("description", '').strip()
+        dataset.frequency = 'unknown'
+        description = ods_metadata.get('description', '').strip()
         description = html2text.html2text(description.strip('\n').strip(),
                                           bodywidth=0)
         dataset.description = description.strip().strip('\n').strip()
         dataset.private = False
 
         tags = set()
-        if "keyword" in ods_metadata:
+        if 'keyword' in ods_metadata:
             if isinstance(ods_metadata['keyword'], list):
                 tags |= set(ods_metadata['keyword'])
             else:
                 tags.add(ods_metadata['keyword'])
 
-        if "theme" in ods_metadata:
-            if isinstance(ods_metadata["theme"], list):
-                for theme in ods_metadata["theme"]:
-                    tags.update([t.strip().lower() for t in theme.split(",")])
+        if 'theme' in ods_metadata:
+            if isinstance(ods_metadata['theme'], list):
+                for theme in ods_metadata['theme']:
+                    tags.update([t.strip().lower() for t in theme.split(',')])
             else:
-                themes = ods_metadata["theme"].split(",")
+                themes = ods_metadata['theme'].split(',')
                 tags.update([t.strip().lower() for t in themes])
 
         dataset.tags = list(tags)
@@ -125,8 +126,6 @@ class OdsBackend(BaseBackend):
                                         self.LICENSES.get(license_id),
                                         default=default_license)
 
-        dataset.resources = []
-
         self.process_resources(dataset, ods_dataset, ('csv', 'json'))
 
         if 'geo' in ods_dataset['features']:
@@ -135,10 +134,10 @@ class OdsBackend(BaseBackend):
         if 'alternative_exports' in ods_dataset:
             self.process_alternative_exports(dataset, ods_dataset)
 
-        dataset.extras["ods:url"] = self.explore_url(dataset_id)
-        if "references" in ods_metadata:
-            dataset.extras["ods:references"] = ods_metadata["references"]
-        dataset.extras["ods:has_records"] = ods_dataset["has_records"]
+        dataset.extras['ods:url'] = self.explore_url(dataset_id)
+        if 'references' in ods_metadata:
+            dataset.extras['ods:references'] = ods_metadata['references']
+        dataset.extras['ods:has_records'] = ods_dataset['has_records']
 
         return dataset
 
@@ -146,18 +145,23 @@ class OdsBackend(BaseBackend):
         dataset_id = data['datasetid']
         modified_at = self.parse_date(data['metas']['modified'])
         for export in data['alternative_exports']:
-            data = {
-                'title': export.get('title', 'No title'),
-            }
+            url = self.alternative_export_url(dataset_id, export['id'])
+            created, resource = self.get_resource(dataset, url)
+            resource.title = export.get('title', 'No title')
             if 'description' in export:
-                data['description'] = export['description']
+                resource.description = export['description']
             if 'mimetype' in export:
-                data['mime'] = export['mimetype']
-                data['format'] = self.guess_format(export['mimetype'])
-            data['url'] = self.alternative_export_url(dataset_id, export['id'])
-            resource = Resource(**data)
+                resource.mime = export['mimetype']
+                resource.format = self.guess_format(export['mimetype'])
             resource.modified = modified_at
-            dataset.resources.append(resource)
+            if created:
+                dataset.resources.append(resource)
+
+    def get_resource(self, dataset, url):
+        resource = get_by(dataset.resources, 'url', url)
+        if not resource:
+            return True, Resource(url=url)
+        return False, resource
 
     def process_resources(self, dataset, data, formats):
         dataset_id = data['datasetid']
@@ -166,15 +170,16 @@ class OdsBackend(BaseBackend):
         description = self.description_from_fields(data['fields'])
         for _format in formats:
             label, udata_format, mime = self.FORMATS[_format]
-            resource = Resource(
-                title='Export au format {0}'.format(label),
-                description=description,
-                filetype='remote',
-                url=self.download_url(dataset_id, _format),
-                format=udata_format,
-                mime=mime)
+            url = self.download_url(dataset_id, _format)
+            created, resource = self.get_resource(dataset, url)
+            resource.title = 'Export au format {0}'.format(label)
+            resource.description = description
+            resource.filetype = 'remote'
+            resource.format = udata_format
+            resource.mime = mime
             resource.modified = modified_at
-            dataset.resources.append(resource)
+            if created:
+                dataset.resources.append(resource)
 
     def description_from_fields(self, fields):
         '''Build a resource description/schema from ODS API fields'''
