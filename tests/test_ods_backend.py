@@ -103,7 +103,7 @@ def test_simple(rmock):
                            'keyword1',
                            'spatial-planning',
                            'town-planning']
-    assert len(test_b.resources) == 4
+    assert len(test_b.resources) == 5
     resource = test_b.resources[2]
     assert resource.title == 'Export au format GeoJSON'
     assert resource.description is not None
@@ -123,11 +123,29 @@ def test_simple(rmock):
                             '?format=shp&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
 
+    resource = test_b.resources[4]
+    assert resource.title == 'gtfs.zip'
+    assert resource.description == 'GTFS 15/01'
+    assert resource.format == 'zip'
+    assert resource.mime == 'application/zip'
+    assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
+                            '/api/datasets/1.0/test-b/alternative_exports'
+                            '/gtfs_zip')
+
     # test-c has no data
     assert 'test-c' not in datasets
 
     # test-d is INSPIRE
     assert 'test-d' not in datasets
+
+    # run one more time (test idempotent)
+    actions.run(source.slug)
+    source.reload()
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 2
+    test_b = datasets['test-b']
+    assert len(test_b.resources) == 5
+
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])
 def test_urls_format(url):

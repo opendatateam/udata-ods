@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from mimetypes import guess_extension
+
 import html2text
+from dateutil.parser import parse as parse_date
 
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
@@ -37,6 +40,10 @@ class OdsBackend(BaseBackend):
 
     def explore_url(self, dataset_id):
         return "{0}/explore/dataset/{1}/".format(self.source_url, dataset_id)
+
+    def alternative_export_url(self, dataset_id, export_id):
+        return "{0}/api/datasets/1.0/{1}/alternative_exports/{2}".format(
+            self.source_url, dataset_id, export_id)
 
     def download_url(self, dataset_id, format):
         return ("{0}download?format={1}&timezone=Europe/Berlin"
@@ -125,6 +132,9 @@ class OdsBackend(BaseBackend):
         if 'geo' in ods_dataset['features']:
             self.process_resources(dataset, ods_dataset, ('geojson', 'shp'))
 
+        if 'alternative_exports' in ods_dataset:
+            self.process_alternative_exports(dataset, ods_dataset)
+
         dataset.extras["ods:url"] = self.explore_url(dataset_id)
         if "references" in ods_metadata:
             dataset.extras["ods:references"] = ods_metadata["references"]
@@ -132,20 +142,38 @@ class OdsBackend(BaseBackend):
 
         return dataset
 
+    def process_alternative_exports(self, dataset, data):
+        dataset_id = data['datasetid']
+        modified_at = self.parse_date(data['metas']['modified'])
+        for export in data['alternative_exports']:
+            data = {
+                'title': export.get('title', 'No title'),
+            }
+            if 'description' in export:
+                data['description'] = export['description']
+            if 'mimetype' in export:
+                data['mime'] = export['mimetype']
+                data['format'] = self.guess_format(export['mimetype'])
+            data['url'] = self.alternative_export_url(dataset_id, export['id'])
+            resource = Resource(**data)
+            resource.modified = modified_at
+            dataset.resources.append(resource)
+
     def process_resources(self, dataset, data, formats):
-        dataset_id = data["datasetid"]
-        ods_metadata = data["metas"]
+        dataset_id = data['datasetid']
+        ods_metadata = data['metas']
+        modified_at = self.parse_date(ods_metadata['modified'])
         description = self.description_from_fields(data['fields'])
-        for format in formats:
-            label, udata_format, mime = self.FORMATS[format]
+        for _format in formats:
+            label, udata_format, mime = self.FORMATS[_format]
             resource = Resource(
                 title='Export au format {0}'.format(label),
                 description=description,
                 filetype='remote',
-                url=self.download_url(dataset_id, format),
+                url=self.download_url(dataset_id, _format),
                 format=udata_format,
                 mime=mime)
-            resource.modified = ods_metadata["modified"]
+            resource.modified = modified_at
             dataset.resources.append(resource)
 
     def description_from_fields(self, fields):
@@ -160,3 +188,15 @@ class OdsBackend(BaseBackend):
                 out += ' {description}'.format(**field)
             out += '\n'
         return out
+
+    def parse_date(self, date_str):
+        try:
+            return parse_date(date_str)
+        except ValueError:
+            pass
+
+    def guess_format(self, mimetype):
+        ext = guess_extension(mimetype)
+        if ext:
+            ext = ext.replace('.', '')
+        return ext
