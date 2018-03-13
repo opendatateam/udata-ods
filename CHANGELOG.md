@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 1.0.1 (2018-03-13)
 
 - Fix URLs handling (no double slashes) [#2](https://github.com/opendatateam/udata-ods/pull/2)
