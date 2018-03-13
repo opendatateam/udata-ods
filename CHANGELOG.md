@@ -1,6 +1,6 @@
 # Changelog
 
-## Current (in progress)
+## 1.0.1 (2018-03-13)
 
 - Fix URLs handling (no double slashes) [#2](https://github.com/opendatateam/udata-ods/pull/2)
 - Fix packaging [#3](https://github.com/opendatateam/udata-ods/pull/3)
