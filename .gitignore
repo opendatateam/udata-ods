@@ -49,7 +49,6 @@ reports/
 
 # Translations
 *.mo
-*.pot
 
 # Django stuff:
 *.log
