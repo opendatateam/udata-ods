@@ -10,6 +10,7 @@ from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
 from udata.utils import get_by
+from udata.i18n import lazy_gettext as _
 
 
 class OdsBackend(BaseBackend):
@@ -172,7 +173,7 @@ class OdsBackend(BaseBackend):
             label, udata_format, mime = self.FORMATS[_format]
             url = self.download_url(dataset_id, _format)
             created, resource = self.get_resource(dataset, url)
-            resource.title = 'Export au format {0}'.format(label)
+            resource.title = _('Export to {format}').format(format=label)
             resource.description = description
             resource.filetype = 'remote'
             resource.format = udata_format
