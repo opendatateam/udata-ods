@@ -6,6 +6,7 @@ from mimetypes import guess_extension
 import html2text
 from dateutil.parser import parse as parse_date
 
+from udata.i18n import gettext as _
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
@@ -172,7 +173,7 @@ class OdsBackend(BaseBackend):
             label, udata_format, mime = self.FORMATS[_format]
             url = self.download_url(dataset_id, _format)
             created, resource = self.get_resource(dataset, url)
-            resource.title = 'Export au format {0}'.format(label)
+            resource.title = _('{format} format export').format(format=label)
             resource.description = description
             resource.filetype = 'remote'
             resource.format = udata_format

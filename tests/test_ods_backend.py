@@ -73,7 +73,7 @@ def test_simple(rmock):
 
     assert len(d.resources) == 2
     resource = d.resources[0]
-    assert resource.title == 'Export au format CSV'
+    assert resource.title == 'CSV format export'
     assert resource.description is not None
     assert resource.format == 'csv'
     assert resource.mime == 'text/csv'
@@ -84,7 +84,7 @@ def test_simple(rmock):
                             '&use_labels_for_header=true')
 
     resource = d.resources[1]
-    assert resource.title == 'Export au format JSON'
+    assert resource.title == 'JSON format export'
     assert resource.description is not None
     assert resource.format == 'json'
     assert resource.mime == 'application/json'
@@ -106,7 +106,7 @@ def test_simple(rmock):
     assert len(test_b.resources) == 5
     resource_ids = set([r.id for r in test_b.resources])
     resource = test_b.resources[2]
-    assert resource.title == 'Export au format GeoJSON'
+    assert resource.title == 'GeoJSON format export'
     assert resource.description is not None
     assert resource.format == 'json'
     assert resource.mime == 'application/vnd.geo+json'
@@ -115,7 +115,7 @@ def test_simple(rmock):
                             '?format=geojson&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
     resource = test_b.resources[3]
-    assert resource.title == 'Export au format Shapefile'
+    assert resource.title == 'Shapefile format export'
     assert resource.description is not None
     assert resource.format == 'shp'
     assert resource.mime is None
