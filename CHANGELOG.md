@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Initial i18n support [#20](https://github.com/opendatateam/udata-ods/pull/20)
 
 ## 1.0.1 (2018-03-13)
 

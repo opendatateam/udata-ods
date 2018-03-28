@@ -8,6 +8,12 @@ from invoke import task, call
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
+LANGUAGES = ['fr', 'pt']
+
+I18N_ROOT = 'udata_ods/translations'
+
+I18N_DOMAIN = 'udata-ods'
+
 TO_CLEAN = ['build', 'dist', '**/*.pyc', 'reports']
 
 
@@ -100,6 +106,29 @@ def qa(ctx):
 
 
 @task
+def i18n(ctx):
+    '''Extract translatable strings'''
+    header(i18n.__doc__)
+    with ctx.cd(ROOT):
+        ctx.run('mkdir -p {}'.format(I18N_ROOT))
+        ctx.run('python setup.py extract_messages')
+        for lang in LANGUAGES:
+            pofile = os.path.join(I18N_ROOT, lang, 'LC_MESSAGES', '{}.po'.format(I18N_DOMAIN))
+            if not os.path.exists(pofile):
+                ctx.run('python setup.py init_catalog -l {}'.format(lang))
+    success('Updated translations')
+
+
+@task
+def i18nc(ctx):
+    '''Compile translations'''
+    header(i18nc.__doc__)
+    with ctx.cd(ROOT):
+        ctx.run('python setup.py compile_catalog')
+    success('Compiled translations')
+
+
+@task(i18nc)
 def dist(ctx, buildno=None):
     '''Package for distribution'''
     header('Building a distribuable package')
