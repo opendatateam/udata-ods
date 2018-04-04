@@ -127,5 +127,34 @@
             "type": "text",
             "description": null
         }]
+    }, {
+        "datasetid": "test-shp-limit",
+        "metas": {
+            "domain": "etalab-sandbox",
+            "keyword": "keyword1",
+            "language": "en",
+            "title": "test-shp-limit",
+            "records_count": 50001,
+            "modified": "2015-04-09T10:29:11+00:00",
+            "visibility": "domain",
+            "theme": "Spatial planning, Town planning, Buildings, Equipment, Housing"
+        },
+        "has_records": true,
+        "features": ["geo"],
+        "attachments": [],
+        "alternative_exports":[],
+        "fields": [{
+            "label": "test",
+            "type": "text",
+            "name": "test"
+        }, {
+            "label": "geo",
+            "type": "geo_point_2d",
+            "name": "geo"
+        }, {
+            "label": "value",
+            "type": "text",
+            "name": "value"
+        }]
     }]
 }
