@@ -49,11 +49,11 @@ def test_simple(rmock):
     source.reload()
 
     job = source.get_last_job()
-    assert len(job.items) == 4
+    assert len(job.items) == 5
     assert job.status == 'done'
 
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
-    assert len(datasets) == 2
+    assert len(datasets) == 3
 
     assert 'test-a' in datasets
     d = datasets['test-a']
@@ -139,6 +139,13 @@ def test_simple(rmock):
     # test-d is INSPIRE
     assert 'test-d' not in datasets
 
+    # test-shp-limit has no shp export
+    assert 'test-shp-limit' in datasets
+    test_shp_limit = datasets['test-shp-limit']
+    assert len(test_shp_limit.resources) == 3
+    for resource in test_shp_limit.resources:
+        assert resource.title != 'Shapefile format export'
+
     # run one more time (test idempotent and resource update)
     response = ods_response('search.json')
     response = response.replace('gtfs.zip', 'new')
@@ -147,7 +154,7 @@ def test_simple(rmock):
     actions.run(source.slug)
     source.reload()
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
-    assert len(datasets) == 2
+    assert len(datasets) == 3
     test_b = datasets['test-b']
     assert len(test_b.resources) == 5
     new_resource_ids = set([r.id for r in test_b.resources])

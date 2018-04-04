@@ -17,6 +17,10 @@ class OdsBackend(BaseBackend):
     display_name = 'OpenDataSoft'
     verify_ssl = False
 
+    # above this records count limit, shapefile export will be disabled
+    # since it would be a partial export
+    SHAPEFILE_RECORDS_LIMIT = 50000
+
     LICENSES = {
         'Open Database License (ODbL)': 'odc-odbl',
         'Licence Ouverte (Etalab)': 'fr-lo',
@@ -130,7 +134,10 @@ class OdsBackend(BaseBackend):
         self.process_resources(dataset, ods_dataset, ('csv', 'json'))
 
         if 'geo' in ods_dataset['features']:
-            self.process_resources(dataset, ods_dataset, ('geojson', 'shp'))
+            exports = ['geojson']
+            if ods_metadata['records_count'] <= self.SHAPEFILE_RECORDS_LIMIT:
+                exports.append('shp')
+            self.process_resources(dataset, ods_dataset, exports)
 
         if 'alternative_exports' in ods_dataset:
             self.process_alternative_exports(dataset, ods_dataset)
