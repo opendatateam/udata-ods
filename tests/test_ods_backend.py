@@ -7,6 +7,8 @@ from urlparse import parse_qs, urlparse
 
 import pytest
 
+from flask import url_for
+
 from udata.models import Dataset, License
 from udata.core.organization.factories import OrganizationFactory
 from udata.harvest import actions
@@ -15,7 +17,8 @@ from udata.harvest.tests.factories import HarvestSourceFactory
 from udata_ods.harvesters import OdsBackend
 
 DATA_DIR = join(dirname(__file__), 'data')
-ODS_URL = 'http://etalab-sandbox.opendatasoft.com'
+DOMAIN = 'etalab-sandbox.opendatasoft.com'
+ODS_URL = 'http://{0}'.format(DOMAIN)
 
 pytestmark = pytest.mark.usefixtures('clean_db')
 
@@ -27,6 +30,7 @@ def ods_response(filename):
 
 
 @pytest.mark.options(PLUGINS=['ods'])
+@pytest.mark.frontend()
 def test_simple(rmock):
     for license_id in set(OdsBackend.LICENSES.values()):
         License.objects.create(id=license_id, title=license_id)
@@ -67,7 +71,7 @@ def test_simple(rmock):
     assert d.extras['ods:references'] == 'http://example.com'
     assert d.extras['ods:has_records']
     assert d.extras['harvest:remote_id'] == 'test-a'
-    assert d.extras['harvest:domain'] == 'etalab-sandbox.opendatasoft.com'
+    assert d.extras['harvest:domain'] == DOMAIN
     assert d.extras['ods:url'] == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
 
@@ -82,6 +86,10 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=csv&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
+    assert resource.preview_url == url_for('ods.preview',
+                                           domain=DOMAIN,
+                                           id='test-a',
+                                           _external=True)
 
     resource = d.resources[1]
     assert resource.title == 'JSON format export'
@@ -93,6 +101,10 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=json&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
+    assert resource.preview_url == url_for('ods.preview',
+                                           domain=DOMAIN,
+                                           id='test-a',
+                                           _external=True)
 
     # test-b has geo feature
     assert 'test-b' in datasets
@@ -132,6 +144,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/alternative_exports'
                             '/gtfs_zip')
+    assert resource.preview_url is None
 
     # test-c has no data
     assert 'test-c' not in datasets

@@ -118,7 +118,10 @@ setup(
     entry_points={
         'udata.harvesters': [
             'ods = udata_ods.harvesters:OdsBackend',
-        ]
+        ],
+        'udata.views': [
+            'ods = udata_ods.views',
+        ],
     },
     license='AGPL',
     zip_safe=False,

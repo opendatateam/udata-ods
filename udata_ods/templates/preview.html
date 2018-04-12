@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ dataset.title }} - {{ _('Preview') }}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://opendatasoft.github.io/ods-widgets/dist/ods-widgets.css">
+        <style>
+            * {
+                box-sizing: border-box;
+                border: none;
+                margin: 0;
+                padding: 0;
+                outline: 0;
+            }
+            html, body {
+                height: 100%;
+                width: 100%;
+            }
+            .preview-title {
+                font-size: 24px;
+                height: 32px;
+                margin: 10px 0;
+                text-align: center;
+            }
+            .preview-container {
+                height: calc(100% - 52px);
+            }
+        </style>
+    </head>
+    <body ng-app="ods-widgets">
+        {% if config.PREVIEW_MODE == 'page' %}
+        <h1 class="preview-title">{{ dataset.title }}</h1>
+        <div class="preview-container">
+        {% endif %}
+
+        <ods-dataset-context context="preview"
+            preview-domain="{{ dataset.extras['harvest:domain'] }}"
+            preview-dataset="{{ dataset.extras['harvest:remote_id'] }}">
+            <ods-table context="preview" ods-auto-resize></ods-table>
+            {# Displaying more than one widget requires some CSS and layout adjustments #}
+            {#% if dataset.extras.get('ods:geo') %}
+            <ods-map context="preview"></ods-map>
+            {% endif %#}
+        </ods-dataset-context>
+
+        {% if config.PREVIEW_MODE == 'page' %}
+        </div>
+        {% endif %}
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.7/angular-sanitize.min.js"></script>
+        <script type="text/javascript" src="https://opendatasoft.github.io/ods-widgets/dist/ods-widgets.js"></script>
+    </body>
+</html>

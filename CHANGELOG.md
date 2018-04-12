@@ -4,6 +4,7 @@
 
 - Initial i18n support [#20](https://github.com/opendatateam/udata-ods/pull/20)
 - Do not export SHP when above records limit [#26](https://github.com/opendatateam/udata-ods/pull/20)
+- Initial resources `preview_url` support [#29](https://github.com/opendatateam/udata-ods/pull/29)
 
 ## 1.0.1 (2018-03-13)
 
