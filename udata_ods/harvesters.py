@@ -194,7 +194,8 @@ class OdsBackend(BaseBackend):
                 resource.preview_url = url_for('ods.preview',
                                                domain=self.source.domain,
                                                id=dataset_id,
-                                               _external=True)
+                                               _external=True,
+                                               _scheme='')
             if created:
                 dataset.resources.append(resource)
 
