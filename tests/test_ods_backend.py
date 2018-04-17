@@ -89,7 +89,8 @@ def test_simple(rmock):
     assert resource.preview_url == url_for('ods.preview',
                                            domain=DOMAIN,
                                            id='test-a',
-                                           _external=True)
+                                           _external=True,
+                                           _scheme='')
 
     resource = d.resources[1]
     assert resource.title == 'JSON format export'
@@ -104,7 +105,8 @@ def test_simple(rmock):
     assert resource.preview_url == url_for('ods.preview',
                                            domain=DOMAIN,
                                            id='test-a',
-                                           _external=True)
+                                           _external=True,
+                                           _scheme='')
 
     # test-b has geo feature
     assert 'test-b' in datasets
