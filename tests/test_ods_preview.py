@@ -5,15 +5,73 @@ import pytest
 
 from flask import url_for
 
-from udata.core.dataset.factories import DatasetFactory
+from udata.core.dataset.factories import (
+    CommunityResourceFactory, DatasetFactory, ResourceFactory
+)
 from udata.tests.helpers import assert200, assert404
 from udata.utils import faker
 
 pytestmark = [
     pytest.mark.usefixtures('clean_db'),
     pytest.mark.options(PLUGINS=['ods']),
-    pytest.mark.frontend()
+    pytest.mark.frontend,
 ]
+
+
+def test_display_preview_for_api_resources():
+    domain = faker.domain_name()
+    remote_id = faker.unique_string()
+    resource = ResourceFactory(extras={'ods:type': 'api'})
+    DatasetFactory(resources=[resource], extras={
+        'harvest:remote_id': remote_id,
+        'harvest:domain': domain,
+        'ods:url': faker.uri(),
+    })
+
+    assert resource.preview_url == url_for('ods.preview',
+                                           domain=domain,
+                                           id=remote_id,
+                                           _external=True,
+                                           _scheme='')
+
+
+def test_no_preview_for_alternative_export():
+    domain = faker.domain_name()
+    remote_id = faker.unique_string()
+    resource = ResourceFactory(extras={'ods:type': 'alternative_export'})
+    DatasetFactory(resources=[resource], extras={
+        'harvest:remote_id': remote_id,
+        'harvest:domain': domain,
+        'ods:url': faker.uri(),
+    })
+
+    assert resource.preview_url is None
+
+
+def test_display_preview_only_for_ods_resources():
+    domain = faker.domain_name()
+    remote_id = faker.unique_string()
+    resource = ResourceFactory(extras={'ods:type': 'api'})
+    DatasetFactory(resources=[resource], extras={
+        'harvest:remote_id': remote_id,
+        'harvest:domain': domain,
+    })
+
+    assert resource.preview_url is None
+
+
+def test_no_preview_for_community_resources():
+    domain = faker.domain_name()
+    remote_id = faker.unique_string()
+    dataset = DatasetFactory(extras={
+        'harvest:remote_id': remote_id,
+        'harvest:domain': domain,
+        'ods:url': faker.uri(),
+    })
+    resource = CommunityResourceFactory(dataset=dataset,
+                                        extras={'ods:type': 'api'})
+
+    assert resource.preview_url is None
 
 
 def test_find_and_display_dataset(client, templates):
