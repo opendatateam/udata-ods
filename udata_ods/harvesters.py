@@ -6,8 +6,6 @@ from mimetypes import guess_extension
 import html2text
 from dateutil.parser import parse as parse_date
 
-from flask import url_for
-
 from udata.i18n import gettext as _
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
@@ -165,6 +163,7 @@ class OdsBackend(BaseBackend):
                 resource.mime = export['mimetype']
                 resource.format = self.guess_format(export['mimetype'])
             resource.modified = modified_at
+            resource.extras['ods:type'] = 'alternative_export'
             if created:
                 dataset.resources.append(resource)
 
@@ -189,13 +188,7 @@ class OdsBackend(BaseBackend):
             resource.format = udata_format
             resource.mime = mime
             resource.modified = modified_at
-            if hasattr(resource, 'preview_url'):
-                # Add preview with backward compatibility
-                resource.preview_url = url_for('ods.preview',
-                                               domain=self.source.domain,
-                                               id=dataset_id,
-                                               _external=True,
-                                               _scheme='')
+            resource.extras['ods:type'] = 'api'
             if created:
                 dataset.resources.append(resource)
 

@@ -86,11 +86,7 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=csv&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
-    assert resource.preview_url == url_for('ods.preview',
-                                           domain=DOMAIN,
-                                           id='test-a',
-                                           _external=True,
-                                           _scheme='')
+    assert resource.extras['ods:type'] == 'api'
 
     resource = d.resources[1]
     assert resource.title == 'JSON format export'
@@ -102,11 +98,7 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=json&timezone=Europe/Berlin'
                             '&use_labels_for_header=true')
-    assert resource.preview_url == url_for('ods.preview',
-                                           domain=DOMAIN,
-                                           id='test-a',
-                                           _external=True,
-                                           _scheme='')
+    assert resource.extras['ods:type'] == 'api'
 
     # test-b has geo feature
     assert 'test-b' in datasets
@@ -146,7 +138,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/alternative_exports'
                             '/gtfs_zip')
-    assert resource.preview_url is None
+    assert resource.extras['ods:type'] == 'alternative_export'
 
     # test-c has no data
     assert 'test-c' not in datasets

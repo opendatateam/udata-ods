@@ -122,6 +122,9 @@ setup(
         'udata.views': [
             'ods = udata_ods.views',
         ],
+        'udata.preview': [
+            'ods = udata_ods.preview:OdsPreview',
+        ],
     },
     license='AGPL',
     zip_safe=False,
