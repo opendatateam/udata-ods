@@ -34,11 +34,11 @@ def test_display_preview_for_api_resources():
                                            _external=True,
                                            _scheme='')
 
-
-def test_no_preview_for_alternative_export():
+@pytest.mark.parametrize('typ', ['alternative_export', 'attachment'])
+def test_no_preview_for(typ):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    resource = ResourceFactory(extras={'ods:type': 'alternative_export'})
+    resource = ResourceFactory(extras={'ods:type': typ})
     DatasetFactory(resources=[resource], extras={
         'harvest:remote_id': remote_id,
         'harvest:domain': domain,
