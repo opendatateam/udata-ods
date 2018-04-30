@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from mimetypes import guess_extension
 
-import html2text
 from dateutil.parser import parse as parse_date
 
+from udata.frontend.markdown import parse_html
 from udata.i18n import gettext as _
 from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
@@ -102,9 +102,7 @@ class OdsBackend(BaseBackend):
         dataset.title = ods_metadata['title']
         dataset.frequency = 'unknown'
         description = ods_metadata.get('description', '').strip()
-        description = html2text.html2text(description.strip('\n').strip(),
-                                          bodywidth=0)
-        dataset.description = description.strip().strip('\n').strip()
+        dataset.description = parse_html(description)
         dataset.private = False
 
         tags = set()

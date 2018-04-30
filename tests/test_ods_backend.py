@@ -7,8 +7,6 @@ from urlparse import parse_qs, urlparse
 
 import pytest
 
-from flask import url_for
-
 from udata.models import Dataset, License
 from udata.core.organization.factories import OrganizationFactory
 from udata.harvest import actions
