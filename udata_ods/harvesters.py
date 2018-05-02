@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from mimetypes import guess_extension
+import mimetypes
+import os
 
 from dateutil.parser import parse as parse_date
 
@@ -11,6 +12,30 @@ from udata.harvest.backends.base import BaseBackend
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
 from udata.utils import get_by
+
+
+def guess_format(mimetype, url=None):
+    '''
+    Guess a file format given a MIME type and/or an url
+    '''
+    # TODO: factorize in udata
+    ext = mimetypes.guess_extension(mimetype)
+    if not ext and url:
+        parts = os.path.splitext(url)
+        ext = parts[1] if parts[1] else None
+    return ext[1:] if ext and ext.startswith('.') else ext
+
+
+def guess_mimetype(mimetype, url=None):
+    '''
+    Guess a MIME type given a string or and URL
+    '''
+    # TODO: factorize in udata
+    if mimetype in mimetypes.types_map.values():
+        return mimetype
+    elif url:
+        mime, encoding = mimetypes.guess_type(url)
+        return mime
 
 
 class OdsBackend(BaseBackend):
@@ -47,9 +72,10 @@ class OdsBackend(BaseBackend):
     def explore_url(self, dataset_id):
         return '{0}/explore/dataset/{1}/'.format(self.source_url, dataset_id)
 
-    def alternative_export_url(self, dataset_id, export_id):
-        return '{0}/api/datasets/1.0/{1}/alternative_exports/{2}'.format(
-            self.source_url, dataset_id, export_id)
+    def extra_file_url(self, dataset_id, file_id, plural_type):
+        return '{0}/api/datasets/1.0/{1}/{2}/{3}'.format(
+            self.source_url, dataset_id, plural_type, file_id
+        )
 
     def download_url(self, dataset_id, format):
         return ('{0}download?format={1}&timezone=Europe/Berlin'
@@ -137,8 +163,8 @@ class OdsBackend(BaseBackend):
                 exports.append('shp')
             self.process_resources(dataset, ods_dataset, exports)
 
-        if 'alternative_exports' in ods_dataset:
-            self.process_alternative_exports(dataset, ods_dataset)
+        self.process_extra_files(dataset, ods_dataset, 'alternative_export')
+        self.process_extra_files(dataset, ods_dataset, 'attachment')
 
         dataset.extras['ods:url'] = self.explore_url(dataset_id)
         if 'references' in ods_metadata:
@@ -148,20 +174,21 @@ class OdsBackend(BaseBackend):
 
         return dataset
 
-    def process_alternative_exports(self, dataset, data):
+    def process_extra_files(self, dataset, data, data_type):
         dataset_id = data['datasetid']
         modified_at = self.parse_date(data['metas']['modified'])
-        for export in data['alternative_exports']:
-            url = self.alternative_export_url(dataset_id, export['id'])
+        plural_type = '{0}s'.format(data_type)
+        for export in data.get(plural_type, []):
+            url = self.extra_file_url(dataset_id, export['id'], plural_type)
             created, resource = self.get_resource(dataset, url)
             resource.title = export.get('title', 'No title')
-            if 'description' in export:
-                resource.description = export['description']
-            if 'mimetype' in export:
-                resource.mime = export['mimetype']
-                resource.format = self.guess_format(export['mimetype'])
+            resource.description = export.get('description')
+            resource.format = guess_format(export.get('mimetype'),
+                                           export['url'])
+            resource.mime = guess_mimetype(export.get('mimetype'),
+                                           export['url'])
             resource.modified = modified_at
-            resource.extras['ods:type'] = 'alternative_export'
+            resource.extras['ods:type'] = data_type
             if created:
                 dataset.resources.append(resource)
 
@@ -208,9 +235,3 @@ class OdsBackend(BaseBackend):
             return parse_date(date_str)
         except ValueError:
             pass
-
-    def guess_format(self, mimetype):
-        ext = guess_extension(mimetype)
-        if ext:
-            ext = ext.replace('.', '')
-        return ext

@@ -20,7 +20,20 @@
         },
         "has_records": true,
         "features": ["geo"],
-        "attachments": [],
+        "attachments":[
+            {
+                "url":"odsfile://documentation.pdf",
+                "mimetype":"application/pdf",
+                "id":"documentation_pdf",
+                "title":"Documentation"
+            },
+            {
+                "url":"odsfile://extra.xls",
+                "mimetype":"application/xls",
+                "id":"extra_xls",
+                "title":"Extra file"
+            }
+        ],
         "alternative_exports":[
            {
               "url":"odsfile://gtfs5.zip",

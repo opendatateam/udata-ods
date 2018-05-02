@@ -107,7 +107,7 @@ def test_simple(rmock):
                            'keyword1',
                            'spatial-planning',
                            'town-planning']
-    assert len(test_b.resources) == 5
+    assert len(test_b.resources) == 7
     resource_ids = set([r.id for r in test_b.resources])
     resource = test_b.resources[2]
     assert resource.title == 'GeoJSON format export'
@@ -138,6 +138,26 @@ def test_simple(rmock):
                             '/gtfs_zip')
     assert resource.extras['ods:type'] == 'alternative_export'
 
+    resource = test_b.resources[5]
+    assert resource.title == 'Documentation'
+    assert resource.description is None
+    assert resource.format == 'pdf'
+    assert resource.mime == 'application/pdf'
+    assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
+                            '/api/datasets/1.0/test-b/attachments'
+                            '/documentation_pdf')
+    assert resource.extras['ods:type'] == 'attachment'
+
+    resource = test_b.resources[6]
+    assert resource.title == 'Extra file'
+    assert resource.description is None
+    assert resource.format == 'xls'
+    assert resource.mime == 'application/vnd.ms-excel'
+    assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
+                            '/api/datasets/1.0/test-b/attachments'
+                            '/extra_xls')
+    assert resource.extras['ods:type'] == 'attachment'
+
     # test-c has no data
     assert 'test-c' not in datasets
 
@@ -161,7 +181,7 @@ def test_simple(rmock):
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
     assert len(datasets) == 3
     test_b = datasets['test-b']
-    assert len(test_b.resources) == 5
+    assert len(test_b.resources) == 7
     new_resource_ids = set([r.id for r in test_b.resources])
     # resources ids stay the same
     assert new_resource_ids == resource_ids
