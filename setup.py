@@ -119,6 +119,9 @@ setup(
         'udata.harvesters': [
             'ods = udata_ods.harvesters:OdsBackend',
         ],
+        'udata.models': [
+            'ods = udata_ods.models',
+        ],
         'udata.views': [
             'ods = udata_ods.views',
         ],
