@@ -1,6 +1,6 @@
 # Changelog
 
-## Current (in progress)
+## 1.1.0 (2018-06-06)
 
 - Initial i18n support [#20](https://github.com/opendatateam/udata-ods/pull/20)
 - Do not export SHP when above records limit [#26](https://github.com/opendatateam/udata-ods/pull/20)
