@@ -7,6 +7,7 @@
 - Initial resources preview support [#29](https://github.com/opendatateam/udata-ods/pull/29) [#34](https://github.com/opendatateam/udata-ods/pull/34)
 - Use `udata.frontend.markdown:parse_html()` to parse description [#35](https://github.com/opendatateam/udata-ods/pull/35)
 - Attachments support [#36](https://github.com/opendatateam/udata-ods/pull/36)
+- Register `ods:` prefixed extras [#42](https://github.com/opendatateam/udata-ods/pull/42)
 
 ## 1.0.1 (2018-03-13)
 
