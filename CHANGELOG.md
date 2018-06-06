@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 1.1.0 (2018-06-06)
 
 - Initial i18n support [#20](https://github.com/opendatateam/udata-ods/pull/20)
