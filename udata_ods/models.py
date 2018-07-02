@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from udata.models import db, Dataset, Resource
 
 Dataset.extras.register('ods:url', db.URLField)

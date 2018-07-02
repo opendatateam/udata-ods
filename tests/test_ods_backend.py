@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from datetime import datetime
 from os.path import join, dirname
-from urlparse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 
