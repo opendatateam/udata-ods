@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: udata-ods\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-03-28 12:01+0200\n"
-"PO-Revision-Date: 2018-03-28 10:19-0400\n"
+"POT-Creation-Date: 2018-08-01 17:52+0200\n"
+"PO-Revision-Date: 2018-08-01 16:19\n"
 "Last-Translator: noirbizarre <noirbizarre@gmail.com>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,15 @@ msgstr ""
 "X-Crowdin-File: /master/udata_ods/translations/udata-ods.pot\n"
 "Language: fr_FR\n"
 
-#: udata_ods/harvesters.py:176
-msgid "{format} format export"
+#: udata_ods/harvesters.py:45
+msgid "Tag"
 msgstr ""
+
+#: udata_ods/harvesters.py:45
+msgid "A tag name"
+msgstr ""
+
+#: udata_ods/harvesters.py:228
+msgid "{format} format export"
+msgstr "Export au format {format}"
 
