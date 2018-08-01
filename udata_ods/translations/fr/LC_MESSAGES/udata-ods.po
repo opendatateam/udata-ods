@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: udata-ods\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2018-08-01 17:52+0200\n"
-"PO-Revision-Date: 2018-08-01 16:19\n"
+"PO-Revision-Date: 2018-08-01 16:22\n"
 "Last-Translator: noirbizarre <noirbizarre@gmail.com>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -19,11 +19,11 @@ msgstr ""
 
 #: udata_ods/harvesters.py:45
 msgid "Tag"
-msgstr ""
+msgstr "Mot-clé"
 
 #: udata_ods/harvesters.py:45
 msgid "A tag name"
-msgstr ""
+msgstr "Un mot-clé"
 
 #: udata_ods/harvesters.py:228
 msgid "{format} format export"
