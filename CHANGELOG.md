@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)
 
 ## 1.1.0 (2018-06-06)
 
