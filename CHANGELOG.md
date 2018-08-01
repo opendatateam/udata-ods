@@ -3,6 +3,7 @@
 ## Current (in progress)
 
 - Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)
+- Fix missing translations [#53](https://github.com/opendatateam/udata-ods/pull/53)
 
 ## 1.1.0 (2018-06-06)
 
