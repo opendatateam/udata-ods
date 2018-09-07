@@ -43,6 +43,7 @@ class OdsBackend(BaseBackend):
     verify_ssl = False
     filters = (
         HarvestFilter(_('Tag'), 'tags', basestring, _('A tag name')),
+        HarvestFilter(_('Publisher'), 'publisher', basestring, _('A publisher name')),
     )
     features = (
         HarvestFeature('inspire', _('Harvest Inspire datasets'),
@@ -52,6 +53,7 @@ class OdsBackend(BaseBackend):
     # Map filters key to ODS facets
     FILTERS = {
         'tags': 'keyword',
+        'publisher': 'publisher',
     }
 
     # above this records count limit, shapefile export will be disabled
