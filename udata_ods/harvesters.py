@@ -109,15 +109,13 @@ class OdsBackend(BaseBackend):
                 'rows': 50,
                 'interopmetas': 'true',
             }
-            filters = self.config.get('filters', [])
-            if len(filters) > 0:
-                for f in filters:
-                    ods_key = self.FILTERS[f['key']]
-                    op = 'exclude' if f.get('type') == 'exclude' else 'refine'
-                    key = '.'.join((op, ods_key))
-                    param = params.get(key, set())
-                    param.add(f['value'])
-                    params[key] = param
+            for f in self.get_filters():
+                ods_key = self.FILTERS.get(f['key'], f['key']) 
+                op = 'exclude' if f.get('type') == 'exclude' else 'refine'
+                key = '.'.join((op, ods_key))
+                param = params.get(key, set())
+                param.add(f['value'])
+                params[key] = param
             response = self.get(self.api_url, params=params)
             response.raise_for_status()
             data = response.json()
