@@ -8,7 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from udata.frontend.markdown import parse_html
 from udata.i18n import gettext as _
-from udata.harvest.backends.base import BaseBackend, HarvestFilter
+from udata.harvest.backends.base import BaseBackend, HarvestFilter, HarvestFeature
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
 from udata.utils import get_by
@@ -43,6 +43,10 @@ class OdsBackend(BaseBackend):
     verify_ssl = False
     filters = (
         HarvestFilter(_('Tag'), 'tags', basestring, _('A tag name')),
+    )
+    features = (
+        HarvestFeature('inspire', _('Harvest Inspire datasets'),
+                       _('Whether this harvester should import datasets coming from Inspire')),
     )
 
     # Map filters key to ODS facets
@@ -134,8 +138,7 @@ class OdsBackend(BaseBackend):
             msg = 'Dataset {datasetid} has no record'.format(**ods_dataset)
             raise HarvestSkipException(msg)
 
-        # TODO: This behavior should be enabled with an option
-        if 'inspire' in ods_interopmetas:
+        if 'inspire' in ods_interopmetas and not self.has_feature('inspire'):
             msg = 'Dataset {datasetid} has INSPIRE metadata'
             raise HarvestSkipException(msg.format(**ods_dataset))
 
