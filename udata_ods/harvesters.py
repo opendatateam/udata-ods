@@ -116,7 +116,7 @@ class OdsBackend(BaseBackend):
                 'interopmetas': 'true',
             }
             for f in self.get_filters():
-                ods_key = self.FILTERS.get(f['key'], f['key']) 
+                ods_key = self.FILTERS.get(f['key'], f['key'])
                 op = 'exclude' if f.get('type') == 'exclude' else 'refine'
                 key = '.'.join((op, ods_key))
                 param = params.get(key, set())
