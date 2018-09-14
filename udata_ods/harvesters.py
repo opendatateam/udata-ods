@@ -8,7 +8,7 @@ from dateutil.parser import parse as parse_date
 
 from udata.frontend.markdown import parse_html
 from udata.i18n import gettext as _
-from udata.harvest.backends.base import BaseBackend, HarvestFilter
+from udata.harvest.backends.base import BaseBackend, HarvestFilter, HarvestFeature
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
 from udata.utils import get_by
@@ -43,11 +43,17 @@ class OdsBackend(BaseBackend):
     verify_ssl = False
     filters = (
         HarvestFilter(_('Tag'), 'tags', basestring, _('A tag name')),
+        HarvestFilter(_('Publisher'), 'publisher', basestring, _('A publisher name')),
+    )
+    features = (
+        HarvestFeature('inspire', _('Harvest Inspire datasets'),
+                       _('Whether this harvester should import datasets coming from Inspire')),
     )
 
     # Map filters key to ODS facets
     FILTERS = {
         'tags': 'keyword',
+        'publisher': 'publisher',
     }
 
     # above this records count limit, shapefile export will be disabled
@@ -109,15 +115,13 @@ class OdsBackend(BaseBackend):
                 'rows': 50,
                 'interopmetas': 'true',
             }
-            filters = self.config.get('filters', [])
-            if len(filters) > 0:
-                for f in filters:
-                    ods_key = self.FILTERS[f['key']]
-                    op = 'exclude' if f.get('type') == 'exclude' else 'refine'
-                    key = '.'.join((op, ods_key))
-                    param = params.get(key, set())
-                    param.add(f['value'])
-                    params[key] = param
+            for f in self.get_filters():
+                ods_key = self.FILTERS.get(f['key'], f['key'])
+                op = 'exclude' if f.get('type') == 'exclude' else 'refine'
+                key = '.'.join((op, ods_key))
+                param = params.get(key, set())
+                param.add(f['value'])
+                params[key] = param
             response = self.get(self.api_url, params=params)
             response.raise_for_status()
             data = response.json()
@@ -136,8 +140,7 @@ class OdsBackend(BaseBackend):
             msg = 'Dataset {datasetid} has no record'.format(**ods_dataset)
             raise HarvestSkipException(msg)
 
-        # TODO: This behavior should be enabled with an option
-        if 'inspire' in ods_interopmetas:
+        if 'inspire' in ods_interopmetas and not self.has_feature('inspire'):
             msg = 'Dataset {datasetid} has INSPIRE metadata'
             raise HarvestSkipException(msg.format(**ods_dataset))
 

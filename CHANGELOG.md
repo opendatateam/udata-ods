@@ -2,7 +2,8 @@
 
 ## Current (in progress)
 
-- Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)
+- Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)  [#61](https://github.com/opendatateam/udata-ods/pull/61)
+- Optionnal Inspire dataset harvesting [#61](https://github.com/opendatateam/udata-ods/pull/61)
 - Fix missing translations [#53](https://github.com/opendatateam/udata-ods/pull/53)
 
 ## 1.1.0 (2018-06-06)

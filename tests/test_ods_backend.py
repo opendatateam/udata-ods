@@ -58,7 +58,7 @@ def test_simple(rmock):
     source.reload()
 
     job = source.get_last_job()
-    assert len(job.items) == 5
+    assert len(job.items) == 4
     assert job.status == 'done'
 
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
@@ -197,6 +197,55 @@ def test_simple(rmock):
 
 
 @pytest.mark.frontend()
+def test_exclude_inspire_default(rmock):
+    org = OrganizationFactory()
+    source = HarvestSourceFactory(backend='ods',
+                                  url=ODS_URL,
+                                  organization=org)
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=ods_response('inspire.json'),
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    source.reload()
+
+    job = source.get_last_job()
+    assert len(job.items) == 1
+    assert job.status == 'done'
+
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 0
+
+
+@pytest.mark.frontend()
+def test_with_inspire_enabled(rmock):
+    org = OrganizationFactory()
+    source = HarvestSourceFactory(backend='ods',
+                                  url=ODS_URL,
+                                  organization=org,
+                                  config={'features': {'inspire': True}})
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=ods_response('inspire.json'),
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    source.reload()
+
+    job = source.get_last_job()
+    assert len(job.items) == 1
+    assert job.status == 'done'
+
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 1
+
+    assert 'inspire' in datasets
+
+
+@pytest.mark.frontend()
 def test_include_filter(rmock):
     tag = faker.word()
 
@@ -281,6 +330,7 @@ def test_multiple_filters(rmock):
     actions.run(source.slug)
 
     assert is_filtering.ok
+
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])
 def test_urls_format(url):
