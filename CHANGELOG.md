@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 1.2.0 (2018-10-02)
 
 - Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)  [#61](https://github.com/opendatateam/udata-ods/pull/61)
