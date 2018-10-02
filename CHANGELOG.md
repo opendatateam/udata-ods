@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Fix dependency on udata 1.6.0 (instead of 1.6.0.dev)
 
 ## 1.2.0 (2018-10-02)
 
