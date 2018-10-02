@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 1.2.1 (2018-10-02)
 
 - Fix dependency on udata 1.6.0 (instead of 1.6.0.dev)
