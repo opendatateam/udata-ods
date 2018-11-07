@@ -108,7 +108,7 @@ setup(
     author_email='contact@opendata.team',
     packages=['udata_ods'],
     include_package_data=True,
-    python_requires='==2.7.*',
+    python_requires='>=3.5',
     install_requires=install_requires,
     tests_require=tests_require,
     extras_require={
@@ -139,8 +139,8 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: System :: Software Distribution',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
