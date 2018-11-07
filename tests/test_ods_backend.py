@@ -26,7 +26,7 @@ def ods_response(filename):
 
 
 def get_qs(request, name):
-    return request.qs[name][0].decode('utf8')
+    return request.qs[name][0]
 
 
 @pytest.fixture(autouse=True)
