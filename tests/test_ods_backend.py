@@ -8,6 +8,7 @@ from udata.models import Dataset, License
 from udata.core.organization.factories import OrganizationFactory
 from udata.harvest import actions
 from udata.harvest.tests.factories import HarvestSourceFactory
+from udata.utils import faker
 
 from udata_ods.harvesters import OdsBackend
 
@@ -15,7 +16,7 @@ DATA_DIR = join(dirname(__file__), 'data')
 DOMAIN = 'etalab-sandbox.opendatasoft.com'
 ODS_URL = 'http://{0}'.format(DOMAIN)
 
-pytestmark = pytest.mark.usefixtures('clean_db')
+pytestmark = pytest.mark.options(PLUGINS=['ods'])
 
 
 def ods_response(filename):
@@ -24,12 +25,18 @@ def ods_response(filename):
         return f.read()
 
 
-@pytest.mark.options(PLUGINS=['ods'])
-@pytest.mark.frontend()
-def test_simple(rmock):
+def get_qs(request, name):
+    return request.qs[name][0].decode('utf8')
+
+
+@pytest.fixture(autouse=True)
+def inject_licenses(clean_db):
     for license_id in set(OdsBackend.LICENSES.values()):
         License.objects.create(id=license_id, title=license_id)
 
+
+@pytest.mark.frontend()
+def test_simple(rmock):
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',
                                   url=ODS_URL,
@@ -48,7 +55,7 @@ def test_simple(rmock):
     source.reload()
 
     job = source.get_last_job()
-    assert len(job.items) == 5
+    assert len(job.items) == 4
     assert job.status == 'done'
 
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
@@ -184,6 +191,142 @@ def test_simple(rmock):
     assert new_resource_ids == resource_ids
     resource = test_b.resources[4]
     assert resource.title == 'new'
+
+
+@pytest.mark.frontend()
+def test_exclude_inspire_default(rmock):
+    org = OrganizationFactory()
+    source = HarvestSourceFactory(backend='ods',
+                                  url=ODS_URL,
+                                  organization=org)
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=ods_response('inspire.json'),
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    source.reload()
+
+    job = source.get_last_job()
+    assert len(job.items) == 1
+    assert job.status == 'done'
+
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 0
+
+
+@pytest.mark.frontend()
+def test_with_inspire_enabled(rmock):
+    org = OrganizationFactory()
+    source = HarvestSourceFactory(backend='ods',
+                                  url=ODS_URL,
+                                  organization=org,
+                                  config={'features': {'inspire': True}})
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=ods_response('inspire.json'),
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    source.reload()
+
+    job = source.get_last_job()
+    assert len(job.items) == 1
+    assert job.status == 'done'
+
+    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    assert len(datasets) == 1
+
+    assert 'inspire' in datasets
+
+
+@pytest.mark.frontend()
+def test_include_filter(rmock):
+    tag = faker.word()
+
+    def is_filtering(request, context):
+        assert 'refine.keyword' in request.qs
+        assert get_qs(request, 'refine.keyword') == tag
+        is_filtering.ok = True
+        context.status_code = 200
+        response = ods_response('search.json')
+        return response
+    is_filtering.ok = False
+
+    source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
+        'filters': [{'key': 'tags', 'value': tag}]
+    })
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=is_filtering,
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    assert is_filtering.ok
+
+
+@pytest.mark.frontend()
+def test_exclude_filter(rmock):
+    tag = faker.word()
+
+    def is_filtering(request, context):
+        assert 'exclude.keyword' in request.qs
+        assert get_qs(request, 'exclude.keyword') == tag
+        is_filtering.ok = True
+        context.status_code = 200
+        response = ods_response('search.json')
+        return response
+    is_filtering.ok = False
+
+    source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
+        'filters': [{'key': 'tags', 'value': tag, 'type': 'exclude'}]
+    })
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=is_filtering,
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    assert is_filtering.ok
+
+
+@pytest.mark.frontend()
+def test_multiple_filters(rmock):
+    tag1, tag2, tag3, tag4 = [faker.unique_string() for _ in range(4)]
+
+    def is_filtering(request, context):
+        assert 'exclude.keyword' in request.qs
+        assert 'refine.keyword' in request.qs
+        assert tag1 in request.qs['refine.keyword']
+        assert tag2 in request.qs['refine.keyword']
+        assert tag3 in request.qs['exclude.keyword']
+        assert tag4 in request.qs['exclude.keyword']
+        is_filtering.ok = True
+        context.status_code = 200
+        response = ods_response('search.json')
+        return response
+    is_filtering.ok = False
+
+    source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
+        'filters': [
+            {'key': 'tags', 'value': tag1},
+            {'key': 'tags', 'value': tag2},
+            {'key': 'tags', 'value': tag3, 'type': 'exclude'},
+            {'key': 'tags', 'value': tag4, 'type': 'exclude'},
+        ]
+    })
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=is_filtering,
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    assert is_filtering.ok
 
 
 @pytest.mark.parametrize('url', ['http://domain.com/', 'http://domain.com'])

@@ -5,7 +5,7 @@ from dateutil.parser import parse as parse_date
 
 from udata.frontend.markdown import parse_html
 from udata.i18n import gettext as _
-from udata.harvest.backends.base import BaseBackend
+from udata.harvest.backends.base import BaseBackend, HarvestFilter, HarvestFeature
 from udata.harvest.exceptions import HarvestSkipException
 from udata.models import License, Resource
 from udata.utils import get_by
@@ -38,6 +38,20 @@ def guess_mimetype(mimetype, url=None):
 class OdsBackend(BaseBackend):
     display_name = 'OpenDataSoft'
     verify_ssl = False
+    filters = (
+        HarvestFilter(_('Tag'), 'tags', basestring, _('A tag name')),
+        HarvestFilter(_('Publisher'), 'publisher', basestring, _('A publisher name')),
+    )
+    features = (
+        HarvestFeature('inspire', _('Harvest Inspire datasets'),
+                       _('Whether this harvester should import datasets coming from Inspire')),
+    )
+
+    # Map filters key to ODS facets
+    FILTERS = {
+        'tags': 'keyword',
+        'publisher': 'publisher',
+    }
 
     # above this records count limit, shapefile export will be disabled
     # since it would be a partial export
@@ -93,11 +107,19 @@ class OdsBackend(BaseBackend):
             return count < max_value
 
         while should_fetch():
-            response = self.get(self.api_url, params={
+            params = {
                 'start': count,
                 'rows': 50,
                 'interopmetas': 'true',
-            })
+            }
+            for f in self.get_filters():
+                ods_key = self.FILTERS.get(f['key'], f['key'])
+                op = 'exclude' if f.get('type') == 'exclude' else 'refine'
+                key = '.'.join((op, ods_key))
+                param = params.get(key, set())
+                param.add(f['value'])
+                params[key] = param
+            response = self.get(self.api_url, params=params)
             response.raise_for_status()
             data = response.json()
             nhits = data['nhits']
@@ -115,8 +137,7 @@ class OdsBackend(BaseBackend):
             msg = 'Dataset {datasetid} has no record'.format(**ods_dataset)
             raise HarvestSkipException(msg)
 
-        # TODO: This behavior should be enabled with an option
-        if 'inspire' in ods_interopmetas:
+        if 'inspire' in ods_interopmetas and not self.has_feature('inspire'):
             msg = 'Dataset {datasetid} has INSPIRE metadata'
             raise HarvestSkipException(msg.format(**ods_dataset))
 

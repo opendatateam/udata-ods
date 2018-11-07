@@ -4,6 +4,16 @@
 
 - Migrate to python3 🐍 [#44](https://github.com/opendatateam/udata-ods/pull/44)
 
+## 1.2.1 (2018-10-02)
+
+- Fix dependency on udata 1.6.0 (instead of 1.6.0.dev)
+
+## 1.2.0 (2018-10-02)
+
+- Initial filtering support [#52](https://github.com/opendatateam/udata-ods/pull/52)  [#61](https://github.com/opendatateam/udata-ods/pull/61)
+- Optionnal Inspire dataset harvesting [#61](https://github.com/opendatateam/udata-ods/pull/61)
+- Fix missing translations [#53](https://github.com/opendatateam/udata-ods/pull/53)
+
 ## 1.1.0 (2018-06-06)
 
 - Initial i18n support [#20](https://github.com/opendatateam/udata-ods/pull/20)
