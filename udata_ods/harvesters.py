@@ -136,7 +136,8 @@ class OdsBackend(BaseBackend):
         ods_metadata = ods_dataset['metas']
         ods_interopmetas = ods_dataset.get('interop_metas', {})
 
-        if not ods_dataset.get('has_records'):
+        if not any((ods_dataset.get(attr) for attr
+                    in ('has_records', 'attachments', 'alternative_exports'))):
             msg = 'Dataset {datasetid} has no record'.format(**ods_dataset)
             raise HarvestSkipException(msg)
 
@@ -220,6 +221,8 @@ class OdsBackend(BaseBackend):
         return False, resource
 
     def process_resources(self, dataset, data, formats):
+        if not data.get('has_records'):
+            return
         dataset_id = data['datasetid']
         ods_metadata = data['metas']
         modified_at = self.parse_date(ods_metadata['modified'])
