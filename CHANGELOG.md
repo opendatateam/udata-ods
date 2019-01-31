@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Ensure dataset with only attachments or alternative exports are properly harvested [#86](https://github.com/opendatateam/udata-ods/pull/86)
 
 ## 1.2.1 (2018-10-02)
 
