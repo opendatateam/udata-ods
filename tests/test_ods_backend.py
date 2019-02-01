@@ -194,6 +194,56 @@ def test_simple(rmock):
 
 
 @pytest.mark.frontend()
+def test_no_data(rmock):
+    org = OrganizationFactory()
+    source = HarvestSourceFactory(backend='ods',
+                                  url=ODS_URL,
+                                  organization=org)
+
+    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
+    rmock.get(api_url, text=ods_response('no-data.json'),
+              headers={'Content-Type': 'application/json'})
+
+    actions.run(source.slug)
+
+    source.reload()
+
+    job = source.get_last_job()
+    assert len(job.items) == 2
+    assert job.status == 'done'
+
+    assert Dataset.objects.count() == 1
+
+    d = Dataset.objects.first()
+
+    assert d.title == 'test attachments'
+    assert not d.extras['ods:has_records']
+    assert d.extras['harvest:remote_id'] == 'test-attachments'
+
+    assert len(d.resources) == 2
+
+    resource = d.resources[0]
+    assert resource.title == 'gtfs.zip'
+    assert resource.description == 'GTFS 15/01'
+    assert resource.format == 'zip'
+    assert resource.mime == 'application/zip'
+    assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
+                            '/api/datasets/1.0/test-attachments/alternative_exports'
+                            '/gtfs_zip')
+    assert resource.extras['ods:type'] == 'alternative_export'
+
+    resource = d.resources[1]
+    assert resource.title == 'Documentation'
+    assert resource.description is None
+    assert resource.format == 'pdf'
+    assert resource.mime == 'application/pdf'
+    assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
+                            '/api/datasets/1.0/test-attachments/attachments'
+                            '/documentation_pdf')
+    assert resource.extras['ods:type'] == 'attachment'
+
+
+@pytest.mark.frontend()
 def test_exclude_inspire_default(rmock):
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',

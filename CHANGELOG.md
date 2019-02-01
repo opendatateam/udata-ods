@@ -4,6 +4,10 @@
 
 - Migrate to python3 🐍 [#44](https://github.com/opendatateam/udata-ods/pull/44)
 
+## 1.2.2 (2019-02-01)
+
+- Ensure dataset with only attachments or alternative exports are properly harvested [#86](https://github.com/opendatateam/udata-ods/pull/86)
+
 ## 1.2.1 (2018-10-02)
 
 - Fix dependency on udata 1.6.0 (instead of 1.6.0.dev)

@@ -1,0 +1,56 @@
+{
+    "nhits": 2,
+    "parameters": {
+        "timezone": "UTC",
+        "rows": 10,
+        "format": "json",
+        "staged": false
+    },
+    "datasets": [{
+        "datasetid": "test-attachments",
+        "metas": {
+            "domain": "etalab-sandbox",
+            "keyword": "keyword1",
+            "language": "en",
+            "title": "test attachments",
+            "records_count": 0,
+            "modified": "2015-04-09T10:29:11+00:00",
+            "visibility": "domain",
+            "theme": "Spatial planning, Town planning, Buildings, Equipment, Housing"
+        },
+        "has_records": false,
+        "features": [],
+        "attachments":[
+            {
+                "url":"odsfile://documentation.pdf",
+                "mimetype":"application/pdf",
+                "id":"documentation_pdf",
+                "title":"Documentation"
+            }
+        ],
+        "alternative_exports":[
+           {
+              "url":"odsfile://gtfs5.zip",
+              "mimetype":"application/zip",
+              "title":"gtfs.zip",
+              "description":"GTFS 15/01",
+              "id":"gtfs_zip"
+           }
+        ],
+        "fields": []
+    }, {
+        "datasetid": "test-empty",
+        "metas": {
+            "domain": "etalab-sandbox",
+            "language": "en",
+            "title": "test-c",
+            "records_count": 0,
+            "modified": "2015-04-10T09:39:13+00:00",
+            "visibility": "domain"
+        },
+        "has_records": false,
+        "features": [],
+        "attachments": [],
+        "fields": []
+    }]
+}
