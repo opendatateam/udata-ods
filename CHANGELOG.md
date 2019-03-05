@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Fetch each dataset metadata on processing instead of once on initialization (ensures fresher metadata) [#98](https://github.com/opendatateam/udata-ods/pull/98)
 
 ## 1.2.2 (2019-02-01)
 

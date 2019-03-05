@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 from datetime import datetime
 from os.path import join, dirname
 from urlparse import parse_qs, urlparse
@@ -18,14 +20,49 @@ from udata_ods.harvesters import OdsBackend
 DATA_DIR = join(dirname(__file__), 'data')
 DOMAIN = 'etalab-sandbox.opendatasoft.com'
 ODS_URL = 'http://{0}'.format(DOMAIN)
+SEARCH_URL = '{0}/api/datasets/1.0/search/'.format(ODS_URL)
+DEFAULT_SEARCH = 'test-b', 'test-c', 'test-a', 'test-shp-limit'
+HEADERS = {'Content-Type': 'application/json'}
+
 
 pytestmark = pytest.mark.options(PLUGINS=['ods'])
 
 
-def ods_response(filename):
-    filename = join(DATA_DIR, filename)
+def dataset_url(id):
+    return ''.join((ODS_URL, '/api/datasets/1.0/{0}/'.format(id)))
+
+
+def ods_dataset(id):
+    filename = join(DATA_DIR, '{id}.json'.format(id=id))
     with open(filename) as f:
-        return f.read()
+        return json.load(f)
+
+
+def ods_search(*datasets):
+    datasets = [d if isinstance(d, dict) else ods_dataset(d) for d in datasets]
+    return {
+        "nhits": len(datasets),
+        "parameters": {
+            "timezone": "UTC",
+            "rows": 10,
+            "format": "json",
+            "staged": False
+        },
+        "datasets": datasets
+    }
+
+
+@pytest.fixture(autouse=True)
+def _mock_harvest(request, rmock):
+    marker = request.node.get_closest_marker('harvest')
+    if not marker:
+        return
+    datasets = []
+    for id in marker.args:
+        data = ods_dataset(id)
+        rmock.get(dataset_url(id), json=data, headers=HEADERS)
+        datasets.append(data)
+    rmock.get(SEARCH_URL, headers=HEADERS, json=ods_search(*datasets))
 
 
 def get_qs(request, name):
@@ -39,19 +76,17 @@ def inject_licenses(clean_db):
 
 
 @pytest.mark.frontend()
+@pytest.mark.harvest(*DEFAULT_SEARCH)
 def test_simple(rmock):
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',
                                   url=ODS_URL,
                                   organization=org)
 
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=ods_response('search.json'),
-              headers={'Content-Type': 'application/json'})
-
     actions.run(source.slug)
 
-    assert parse_qs(urlparse(rmock.last_request.url).query) == {
+    search_request = rmock.request_history[0]
+    assert parse_qs(urlparse(search_request.url).query) == {
         'start': ['0'], 'rows': ['50'], 'interopmetas': ['true']
     }
 
@@ -179,12 +214,13 @@ def test_simple(rmock):
         assert resource.title != 'Shapefile format export'
 
     # run one more time (test idempotent and resource update)
-    response = ods_response('search.json')
-    response = response.replace('gtfs.zip', 'new')
-    rmock.get(api_url, text=response,
-              headers={'Content-Type': 'application/json'})
+    data = ods_dataset('test-b')
+    data['alternative_exports'][0]['title'] = 'new'
+    rmock.get(dataset_url('test-b'), json=data, headers=HEADERS)
+
     actions.run(source.slug)
     source.reload()
+
     datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
     assert len(datasets) == 3
     test_b = datasets['test-b']
@@ -197,15 +233,12 @@ def test_simple(rmock):
 
 
 @pytest.mark.frontend()
-def test_no_data(rmock):
+@pytest.mark.harvest('with-attachments', 'empty')
+def test_no_data():
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',
                                   url=ODS_URL,
                                   organization=org)
-
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=ods_response('no-data.json'),
-              headers={'Content-Type': 'application/json'})
 
     actions.run(source.slug)
 
@@ -221,7 +254,7 @@ def test_no_data(rmock):
 
     assert d.title == 'test attachments'
     assert not d.extras['ods:has_records']
-    assert d.extras['harvest:remote_id'] == 'test-attachments'
+    assert d.extras['harvest:remote_id'] == 'with-attachments'
 
     assert len(d.resources) == 2
 
@@ -231,7 +264,7 @@ def test_no_data(rmock):
     assert resource.format == 'zip'
     assert resource.mime == 'application/zip'
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
-                            '/api/datasets/1.0/test-attachments/alternative_exports'
+                            '/api/datasets/1.0/with-attachments/alternative_exports'
                             '/gtfs_zip')
     assert resource.extras['ods:type'] == 'alternative_export'
 
@@ -241,21 +274,18 @@ def test_no_data(rmock):
     assert resource.format == 'pdf'
     assert resource.mime == 'application/pdf'
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
-                            '/api/datasets/1.0/test-attachments/attachments'
+                            '/api/datasets/1.0/with-attachments/attachments'
                             '/documentation_pdf')
     assert resource.extras['ods:type'] == 'attachment'
 
 
 @pytest.mark.frontend()
-def test_exclude_inspire_default(rmock):
+@pytest.mark.harvest('inspire')
+def test_exclude_inspire_default():
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',
                                   url=ODS_URL,
                                   organization=org)
-
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=ods_response('inspire.json'),
-              headers={'Content-Type': 'application/json'})
 
     actions.run(source.slug)
 
@@ -270,16 +300,13 @@ def test_exclude_inspire_default(rmock):
 
 
 @pytest.mark.frontend()
-def test_with_inspire_enabled(rmock):
+@pytest.mark.harvest('inspire')
+def test_with_inspire_enabled():
     org = OrganizationFactory()
     source = HarvestSourceFactory(backend='ods',
                                   url=ODS_URL,
                                   organization=org,
                                   config={'features': {'inspire': True}})
-
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=ods_response('inspire.json'),
-              headers={'Content-Type': 'application/json'})
 
     actions.run(source.slug)
 
@@ -304,17 +331,14 @@ def test_include_filter(rmock):
         assert get_qs(request, 'refine.keyword') == tag
         is_filtering.ok = True
         context.status_code = 200
-        response = ods_response('search.json')
-        return response
+        return ods_search(*DEFAULT_SEARCH)
     is_filtering.ok = False
 
     source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
         'filters': [{'key': 'tags', 'value': tag}]
     })
 
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=is_filtering,
-              headers={'Content-Type': 'application/json'})
+    rmock.get(SEARCH_URL, text=is_filtering, headers=HEADERS)
 
     actions.run(source.slug)
 
@@ -330,17 +354,14 @@ def test_exclude_filter(rmock):
         assert get_qs(request, 'exclude.keyword') == tag
         is_filtering.ok = True
         context.status_code = 200
-        response = ods_response('search.json')
-        return response
+        return ods_search(*DEFAULT_SEARCH)
     is_filtering.ok = False
 
     source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
         'filters': [{'key': 'tags', 'value': tag, 'type': 'exclude'}]
     })
 
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=is_filtering,
-              headers={'Content-Type': 'application/json'})
+    rmock.get(SEARCH_URL, text=is_filtering, headers=HEADERS)
 
     actions.run(source.slug)
 
@@ -360,8 +381,7 @@ def test_multiple_filters(rmock):
         assert tag4 in request.qs['exclude.keyword']
         is_filtering.ok = True
         context.status_code = 200
-        response = ods_response('search.json')
-        return response
+        return ods_search(*DEFAULT_SEARCH)
     is_filtering.ok = False
 
     source = HarvestSourceFactory(backend='ods', url=ODS_URL, config={
@@ -373,9 +393,7 @@ def test_multiple_filters(rmock):
         ]
     })
 
-    api_url = ''.join((ODS_URL, '/api/datasets/1.0/search/'))
-    rmock.get(api_url, text=is_filtering,
-              headers={'Content-Type': 'application/json'})
+    rmock.get(SEARCH_URL, text=is_filtering, headers=HEADERS)
 
     actions.run(source.slug)
 
@@ -388,7 +406,7 @@ def test_urls_format(url):
     backend = OdsBackend(source)
 
     assert backend.source_url == 'http://domain.com'
-    assert backend.api_url == 'http://domain.com/api/datasets/1.0/search/'
+    assert backend.api_search_url == 'http://domain.com/api/datasets/1.0/search/'
 
     explore_url = backend.explore_url('id')
     download_url = backend.download_url('id', 'format')

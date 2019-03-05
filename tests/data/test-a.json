@@ -1,0 +1,33 @@
+{
+    "datasetid": "test-a",
+    "metas": {
+        "publisher": "test",
+        "domain": "etalab-sandbox",
+        "description": "<p>test-a-description</p>",
+        "license": "Licence Ouverte (Etalab)",
+        "title": "test-a",
+        "records_count": 2,
+        "modified": "2015-04-09T10:28:45+00:00",
+        "visibility": "domain",
+        "language": "en",
+        "theme": ["Culture, Heritage", "Environment"],
+        "metadata_processed": "2015-08-03T12:55:00+00:00",
+        "keyword": ["keyword1", "keyword2"],
+        "data_processed": "2015-06-01T05:30:01+00:00",
+        "references": "http://example.com"
+    },
+    "has_records": true,
+    "features": [],
+    "attachments": [],
+    "fields": [{
+        "name": "toto",
+        "label": "toto",
+        "type": "text",
+        "description": null
+    }, {
+        "name": "titi",
+        "label": "titi",
+        "type": "text",
+        "description": null
+    }]
+}
