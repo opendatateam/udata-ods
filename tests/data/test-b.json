@@ -1,0 +1,51 @@
+{
+    "datasetid": "test-b",
+    "metas": {
+        "domain": "etalab-sandbox",
+        "keyword": "keyword1",
+        "language": "en",
+        "title": "test-b",
+        "records_count": 1,
+        "modified": "2015-04-09T10:29:11+00:00",
+        "visibility": "domain",
+        "theme": "Spatial planning, Town planning, Buildings, Equipment, Housing"
+    },
+    "has_records": true,
+    "features": ["geo"],
+    "attachments":[
+        {
+            "url":"odsfile://documentation.pdf",
+            "mimetype":"application/pdf",
+            "id":"documentation_pdf",
+            "title":"Documentation"
+        },
+        {
+            "url":"odsfile://extra.xls",
+            "mimetype":"application/xls",
+            "id":"extra_xls",
+            "title":"Extra file"
+        }
+    ],
+    "alternative_exports":[
+        {
+            "url":"odsfile://gtfs5.zip",
+            "mimetype":"application/zip",
+            "title":"gtfs.zip",
+            "description":"GTFS 15/01",
+            "id":"gtfs_zip"
+        }
+    ],
+    "fields": [{
+        "label": "test",
+        "type": "text",
+        "name": "test"
+    }, {
+        "label": "geo",
+        "type": "geo_point_2d",
+        "name": "geo"
+    }, {
+        "label": "value",
+        "type": "text",
+        "name": "value"
+    }]
+}

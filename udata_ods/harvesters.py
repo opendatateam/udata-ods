@@ -80,8 +80,11 @@ class OdsBackend(BaseBackend):
         return self.source.url.rstrip('/')
 
     @property
-    def api_url(self):
+    def api_search_url(self):
         return '{0}/api/datasets/1.0/search/'.format(self.source_url)
+
+    def api_dataset_url(self, dataset_id):
+        return '{0}/api/datasets/1.0/{1}/'.format(self.source_url, dataset_id)
 
     def explore_url(self, dataset_id):
         return '{0}/explore/dataset/{1}/'.format(self.source_url, dataset_id)
@@ -122,17 +125,20 @@ class OdsBackend(BaseBackend):
                 param = params.get(key, set())
                 param.add(f['value'])
                 params[key] = param
-            response = self.get(self.api_url, params=params)
+            response = self.get(self.api_search_url, params=params)
             response.raise_for_status()
             data = response.json()
             nhits = data['nhits']
             for dataset in data['datasets']:
                 count += 1
-                self.add_item(dataset['datasetid'], dataset=dataset)
+                self.add_item(dataset['datasetid'])
 
     def process(self, item):
-        ods_dataset = item.kwargs['dataset']
-        dataset_id = ods_dataset['datasetid']
+        dataset_id = item.remote_id
+        response = self.get(self.api_dataset_url(dataset_id),
+                            params={'interopmetas': 'true'})
+        response.raise_for_status()
+        ods_dataset = response.json()
         ods_metadata = ods_dataset['metas']
         ods_interopmetas = ods_dataset.get('interop_metas', {})
 
