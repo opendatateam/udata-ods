@@ -1,0 +1,15 @@
+{
+    "datasetid": "test-c",
+    "metas": {
+        "domain": "etalab-sandbox",
+        "language": "en",
+        "title": "test-c",
+        "records_count": 0,
+        "modified": "2015-04-10T09:39:13+00:00",
+        "visibility": "domain"
+    },
+    "has_records": false,
+    "features": [],
+    "attachments": [],
+    "fields": []
+}

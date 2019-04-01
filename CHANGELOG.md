@@ -4,6 +4,10 @@
 
 - Migrate to python3 🐍 [#44](https://github.com/opendatateam/udata-ods/pull/44)
 
+## 1.2.3 (2019-03-27)
+
+- Fetch each dataset metadata on processing instead of once on initialization (ensures fresher metadata) [#98](https://github.com/opendatateam/udata-ods/pull/98)
+
 ## 1.2.2 (2019-02-01)
 
 - Ensure dataset with only attachments or alternative exports are properly harvested [#86](https://github.com/opendatateam/udata-ods/pull/86)
