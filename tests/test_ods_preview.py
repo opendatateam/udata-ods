@@ -22,7 +22,7 @@ def test_display_preview_for_api_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()
     resource = ResourceFactory(extras={'ods:type': 'api'})
-    DatasetFactory(resources=[resource], extras={
+    _ = DatasetFactory(resources=[resource], extras={ # noqa
         'harvest:remote_id': remote_id,
         'harvest:domain': domain,
         'ods:url': faker.uri(),
@@ -34,12 +34,13 @@ def test_display_preview_for_api_resources():
                                            _external=True,
                                            _scheme='')
 
+
 @pytest.mark.parametrize('typ', ['alternative_export', 'attachment'])
 def test_no_preview_for(typ):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
     resource = ResourceFactory(extras={'ods:type': typ})
-    DatasetFactory(resources=[resource], extras={
+    _ = DatasetFactory(resources=[resource], extras={ # noqa
         'harvest:remote_id': remote_id,
         'harvest:domain': domain,
         'ods:url': faker.uri(),
@@ -52,7 +53,7 @@ def test_display_preview_only_for_ods_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()
     resource = ResourceFactory(extras={'ods:type': 'api'})
-    DatasetFactory(resources=[resource], extras={
+    _ = DatasetFactory(resources=[resource], extras={ # noqa
         'harvest:remote_id': remote_id,
         'harvest:domain': domain,
     })
@@ -101,7 +102,7 @@ def test_dataset_not_found(client):
 def test_preview_disabled(client):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    DatasetFactory(extras={
+    _ = DatasetFactory(extras={  # noqa
         'harvest:remote_id': remote_id,
         'harvest:domain': domain
     })
