@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Fill extras.remote_url [#111](https://github.com/opendatateam/udata-ods/pull/111)
 
 ## 1.2.3 (2019-03-27)
 
