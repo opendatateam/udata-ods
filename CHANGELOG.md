@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 1.2.4 (2019-05-29)
 
 - Fill extras.remote_url [#111](https://github.com/opendatateam/udata-ods/pull/111)
