@@ -192,6 +192,7 @@ class OdsBackend(BaseBackend):
         self.process_extra_files(dataset, ods_dataset, 'attachment')
 
         dataset.extras['ods:url'] = self.explore_url(dataset_id)
+        dataset.extras['remote_url'] = self.explore_url(dataset_id)
         if 'references' in ods_metadata:
             dataset.extras['ods:references'] = ods_metadata['references']
         dataset.extras['ods:has_records'] = ods_dataset['has_records']

@@ -4,6 +4,10 @@
 
 - Migrate to python3 🐍 [#44](https://github.com/opendatateam/udata-ods/pull/44)
 
+## 1.2.4 (2019-05-29)
+
+- Fill extras.remote_url [#111](https://github.com/opendatateam/udata-ods/pull/111)
+
 ## 1.2.3 (2019-03-27)
 
 - Fetch each dataset metadata on processing instead of once on initialization (ensures fresher metadata) [#98](https://github.com/opendatateam/udata-ods/pull/98)
