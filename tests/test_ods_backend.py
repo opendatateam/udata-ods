@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import json
 
-from datetime import datetime
+from datetime import datetime, date
 from os.path import join, dirname
 from urlparse import parse_qs, urlparse
 
@@ -114,6 +114,7 @@ def test_simple(rmock):
     assert d.extras['harvest:domain'] == DOMAIN
     assert d.extras['ods:url'] == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
+    assert d.last_modified.date() == date(2015, 4, 9)
 
     assert len(d.resources) == 2
     resource = d.resources[0]
