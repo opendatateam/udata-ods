@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Migrate to python3 🐍 [#44](https://github.com/opendatateam/udata-ods/pull/44)
+- Migrate to python3 🐍 [#91](https://github.com/opendatateam/udata-ods/pull/91)
 
 ## 1.2.4 (2019-05-29)
 
