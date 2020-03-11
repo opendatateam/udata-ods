@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import json
 
 from datetime import datetime
 from os.path import join, dirname
-from urlparse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 
@@ -66,7 +63,7 @@ def _mock_harvest(request, rmock):
 
 
 def get_qs(request, name):
-    return request.qs[name][0].decode('utf8')
+    return request.qs[name][0]
 
 
 @pytest.fixture(autouse=True)
