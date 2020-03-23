@@ -155,6 +155,7 @@ class OdsBackend(BaseBackend):
         description = ods_metadata.get('description', '').strip()
         dataset.description = parse_html(description)
         dataset.private = False
+        dataset.last_modified = ods_metadata['modified']
 
         tags = set()
         if 'keyword' in ods_metadata:

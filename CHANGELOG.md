@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Use `metas[modified]` -> `dataset.last_modified` [#148](https://github.com/opendatateam/udata-ods/pull/148)
 
 ## 2.0.0 (2020-03-11)
 
