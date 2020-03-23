@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
+import gc
 import pytest
 
 from flask import url_for
@@ -11,8 +9,18 @@ from udata.core.dataset.factories import (
 from udata.tests.helpers import assert200, assert404
 from udata.utils import faker
 
+
+@pytest.fixture
+def no_gc():
+    '''Prevent garbage collecting during test with anonymous objects (factories)'''
+    gc.disable()
+    yield
+    gc.collect()
+    gc.enable()
+
+
 pytestmark = [
-    pytest.mark.usefixtures('clean_db'),
+    pytest.mark.usefixtures('clean_db', 'no_gc'),
     pytest.mark.options(PLUGINS=['ods']),
     pytest.mark.frontend,
 ]
@@ -40,11 +48,12 @@ def test_no_preview_for(typ):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
     resource = ResourceFactory(extras={'ods:type': typ})
-    _ = DatasetFactory(resources=[resource], extras={ # noqa
+    # affectation prevent garbage collector from removing object before the end of the test
+    DatasetFactory(resources=[resource], extras={
         'harvest:remote_id': remote_id,
         'harvest:domain': domain,
         'ods:url': faker.uri(),
-    })
+    })  
 
     assert resource.preview_url is None
 

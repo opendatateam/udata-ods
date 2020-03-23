@@ -4,6 +4,10 @@
 
 - Nothing yet
 
+## 2.0.0 (2020-03-11)
+
+- Migrate to python3 🐍 [#91](https://github.com/opendatateam/udata-ods/pull/91)
+
 ## 1.2.4 (2019-05-29)
 
 - Fill extras.remote_url [#111](https://github.com/opendatateam/udata-ods/pull/111)
