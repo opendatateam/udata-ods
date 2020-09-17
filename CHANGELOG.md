@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Point exports (resources) to a version of the file with machine names as headers, instead of labels [#169](https://github.com/opendatateam/udata-ods/pull/169)
 
 ## 2.0.1 (2020-03-24)
 
