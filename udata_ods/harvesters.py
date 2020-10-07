@@ -93,7 +93,7 @@ class OdsBackend(BaseBackend):
 
     def download_url(self, dataset_id, format):
         return ('{0}download?format={1}&timezone=Europe/Berlin'
-                '&use_labels_for_header=true'
+                '&use_labels_for_header=false'
                 ).format(self.explore_url(dataset_id), format)
 
     def export_url(self, dataset_id):
