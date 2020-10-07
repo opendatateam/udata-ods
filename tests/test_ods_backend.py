@@ -123,7 +123,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-a/download'
                             '?format=csv&timezone=Europe/Berlin'
-                            '&use_labels_for_header=true')
+                            '&use_labels_for_header=false')
     assert resource.extras['ods:type'] == 'api'
 
     resource = d.resources[1]
@@ -135,7 +135,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-a/download'
                             '?format=json&timezone=Europe/Berlin'
-                            '&use_labels_for_header=true')
+                            '&use_labels_for_header=false')
     assert resource.extras['ods:type'] == 'api'
 
     # test-b has geo feature
@@ -157,7 +157,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-b/download'
                             '?format=geojson&timezone=Europe/Berlin'
-                            '&use_labels_for_header=true')
+                            '&use_labels_for_header=false')
     resource = test_b.resources[3]
     assert resource.title == 'Shapefile format export'
     assert resource.description is not None
@@ -166,7 +166,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-b/download'
                             '?format=shp&timezone=Europe/Berlin'
-                            '&use_labels_for_header=true')
+                            '&use_labels_for_header=false')
 
     resource = test_b.resources[4]
     assert resource.title == 'gtfs.zip'
