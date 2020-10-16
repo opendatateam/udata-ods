@@ -1,6 +1,6 @@
 # Changelog
 
-## Current (in progress)
+## 2.1.0 (2020-10-16)
 
 - Link exports (resources) to a version of the file with machine names as headers, instead of labels [#169](https://github.com/opendatateam/udata-ods/pull/169)
 
