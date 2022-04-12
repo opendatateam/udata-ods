@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Store geojson format instead of json when relevant [#212](https://github.com/opendatateam/udata-ods/pull/212)
 
 ## 2.1.0 (2020-10-16)
 
