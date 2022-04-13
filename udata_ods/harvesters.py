@@ -180,8 +180,6 @@ class OdsBackend(BaseBackend):
         dataset.license = License.guess(license_id,
                                         self.LICENSES.get(license_id),
                                         default=default_license)
-        if self.explore_url(dataset_id)=='https://saint-louis-agglo.opendatasoft.com/explore/dataset/communes_elus/':
-            breakpoint()
 
         self.process_resources(dataset, ods_dataset, ('csv', 'json'))
 
