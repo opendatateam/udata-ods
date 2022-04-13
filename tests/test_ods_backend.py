@@ -152,7 +152,7 @@ def test_simple(rmock):
     resource = test_b.resources[2]
     assert resource.title == 'GeoJSON format export'
     assert resource.description is not None
-    assert resource.format == 'json'
+    assert resource.format == 'geojson'
     assert resource.mime == 'application/vnd.geo+json'
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-b/download'

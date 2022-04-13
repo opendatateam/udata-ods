@@ -67,7 +67,7 @@ class OdsBackend(BaseBackend):
 
     FORMATS = {
         'csv': ('CSV', 'csv', 'text/csv'),
-        'geojson': ('GeoJSON', 'json', 'application/vnd.geo+json'),
+        'geojson': ('GeoJSON', 'geojson', 'application/vnd.geo+json'),
         'json': ('JSON', 'json', 'application/json'),
         'shp': ('Shapefile', 'shp', None),
     }
