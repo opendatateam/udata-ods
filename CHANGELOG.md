@@ -3,6 +3,7 @@
 ## Current (in progress)
 
 - Store geojson format instead of json when relevant [#212](https://github.com/opendatateam/udata-ods/pull/212)
+- Prevent weak reference error by querying Dataset model instead of using weakproxy instance from EmbeddedDocument [#218](https://github.com/opendatateam/udata-ods/pull/218)
 
 ## 2.1.0 (2020-10-16)
 
