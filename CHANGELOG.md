@@ -3,6 +3,7 @@
 ## Current (in progress)
 
 - Store geojson format instead of json when relevant [#212](https://github.com/opendatateam/udata-ods/pull/212)
+- Replace mongo legacy image in CI [#221](https://github.com/opendatateam/udata-ods/pull/221)
 
 ## 2.1.0 (2020-10-16)
 
