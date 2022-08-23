@@ -1,9 +1,9 @@
-from udata.models import db, Dataset, Resource
+from udata.api import fields
+from udata.core.dataset.api_fields import dataset_harvest_fields, resource_harvest_fields
 
-Dataset.extras.register('ods:url', db.URLField)
-Dataset.extras.register('ods:references', db.StringField)
-Dataset.extras.register('ods:has_records', db.BooleanField)
-Dataset.extras.register('ods:geo', db.BooleanField)
+dataset_harvest_fields['ods_url'] = fields.String(description='The ods url for ods harvested dataset', allow_null=True)
+dataset_harvest_fields['ods_references'] = fields.String(description='The ods reference for ods  harvested dataset', allow_null=True)
+dataset_harvest_fields['ods_has_records'] = fields.Boolean(description='boolean for ods records', allow_null=True)  # TODO: what description?
+dataset_harvest_fields['ods_geo'] = fields.Boolean(description='boolean for ods geo', allow_null=True)  # TODO: what description?
 
-# TODO: handle choices
-Resource.extras.register('ods:type', db.StringField)
+resource_harvest_fields['ods_type'] = fields.String(description='The ods type for ods harvest dataset', allow_null=True)  # TODO: what description?

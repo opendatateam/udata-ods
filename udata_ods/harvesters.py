@@ -192,12 +192,12 @@ class OdsBackend(BaseBackend):
         self.process_extra_files(dataset, ods_dataset, 'alternative_export')
         self.process_extra_files(dataset, ods_dataset, 'attachment')
 
-        dataset.extras['ods:url'] = self.explore_url(dataset_id)
-        dataset.extras['remote_url'] = self.explore_url(dataset_id)
+        dataset.harvest.ods_url = self.explore_url(dataset_id)
+        dataset.harvest.remote_url = self.explore_url(dataset_id)
         if 'references' in ods_metadata:
-            dataset.extras['ods:references'] = ods_metadata['references']
-        dataset.extras['ods:has_records'] = ods_dataset['has_records']
-        dataset.extras['ods:geo'] = 'geo' in ods_dataset['features']
+            dataset.harvest.ods_references = ods_metadata['references']
+        dataset.harvest.ods_has_records = ods_dataset['has_records']
+        dataset.harvest.ods_geo = 'geo' in ods_dataset['features']
 
         return dataset
 
@@ -215,7 +215,7 @@ class OdsBackend(BaseBackend):
             resource.mime = guess_mimetype(export.get('mimetype'),
                                            export['url'])
             resource.modified = modified_at
-            resource.extras['ods:type'] = data_type
+            resource.harvest.ods_type = data_type
             if created:
                 dataset.resources.append(resource)
 
@@ -242,7 +242,7 @@ class OdsBackend(BaseBackend):
             resource.format = udata_format
             resource.mime = mime
             resource.modified = modified_at
-            resource.extras['ods:type'] = 'api'
+            resource.harvest.ods_type = 'api'
             if created:
                 dataset.resources.append(resource)
 
