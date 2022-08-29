@@ -111,7 +111,7 @@ def test_simple(rmock):
     assert d.harvest.domain == DOMAIN
     assert d.harvest.ods_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
-    assert d.last_modified.date() == date(2015, 4, 9)
+    assert d.last_modified.date() == date.today()
 
     assert len(d.resources) == 2
     resource = d.resources[0]
