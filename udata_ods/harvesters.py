@@ -11,6 +11,18 @@ from udata.models import License, Resource
 from udata.utils import get_by
 
 
+# Map ods frequencies to closest Dublin Core equivalent
+ODS_FREQUENCIES = {
+    'minute': 'continuous',
+    'quotidienne': 'daily',
+    'hebdomadaire': 'weekly',
+    'mensuelle': 'monthly',
+    'trimestrielle': 'quarterly',
+    'annuelle': 'annual',
+    'irrégulière': 'irregular',
+}
+
+
 def guess_format(mimetype, url=None):
     '''
     Guess a file format given a MIME type and/or an url
@@ -33,6 +45,11 @@ def guess_mimetype(mimetype, url=None):
     elif url:
         mime, encoding = mimetypes.guess_type(url)
         return mime
+
+
+def map_frequency(frequency):
+    if frequency:
+        return ODS_FREQUENCIES.get(frequency.lower())
 
 
 class OdsBackend(BaseBackend):
@@ -151,7 +168,8 @@ class OdsBackend(BaseBackend):
         dataset = self.get_dataset(item.remote_id)
 
         dataset.title = ods_metadata['title']
-        dataset.frequency = 'unknown'
+        frequency = map_frequency(ods_metadata.get('periodicity'))
+        dataset.frequency = frequency or dataset.frequency or 'unknown'
         description = ods_metadata.get('description', '').strip()
         dataset.description = parse_html(description)
         dataset.private = False
