@@ -6,6 +6,7 @@ from flask import url_for
 from udata.core.dataset.factories import (
     CommunityResourceFactory, DatasetFactory, ResourceFactory
 )
+from udata.core.dataset.models import HarvestDatasetMetadata, HarvestResourceMetadata
 from udata.tests.helpers import assert200, assert404
 from udata.utils import faker
 
@@ -29,12 +30,12 @@ pytestmark = [
 def test_display_preview_for_api_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    resource = ResourceFactory(extras={'ods:type': 'api'})
-    _ = DatasetFactory(resources=[resource], extras={ # noqa
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain,
-        'ods:url': faker.uri(),
-    })
+    resource = ResourceFactory(harvest=HarvestResourceMetadata(ods_type='api'))
+    _ = DatasetFactory(resources=[resource], harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+        ods_url=faker.uri(),
+    ))
 
     assert resource.preview_url == url_for('ods.preview',
                                            domain=domain,
@@ -47,13 +48,13 @@ def test_display_preview_for_api_resources():
 def test_no_preview_for(typ):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    resource = ResourceFactory(extras={'ods:type': typ})
+    resource = ResourceFactory(harvest=HarvestResourceMetadata(ods_type=typ))
     # affectation prevent garbage collector from removing object before the end of the test
-    DatasetFactory(resources=[resource], extras={
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain,
-        'ods:url': faker.uri(),
-    })  
+    DatasetFactory(resources=[resource], harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+        ods_url=faker.uri(),
+    ))
 
     assert resource.preview_url is None
 
@@ -61,11 +62,11 @@ def test_no_preview_for(typ):
 def test_display_preview_only_for_ods_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    resource = ResourceFactory(extras={'ods:type': 'api'})
-    _ = DatasetFactory(resources=[resource], extras={ # noqa
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain,
-    })
+    resource = ResourceFactory(harvest=HarvestResourceMetadata(ods_type='api'))
+    _ = DatasetFactory(resources=[resource], harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+    ))
 
     assert resource.preview_url is None
 
@@ -73,13 +74,13 @@ def test_display_preview_only_for_ods_resources():
 def test_no_preview_for_community_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    dataset = DatasetFactory(extras={
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain,
-        'ods:url': faker.uri(),
-    })
+    dataset = DatasetFactory(harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+        ods_url=faker.uri(),
+    ))
     resource = CommunityResourceFactory(dataset=dataset,
-                                        extras={'ods:type': 'api'})
+                                        harvest=HarvestResourceMetadata(ods_type='api'))
 
     assert resource.preview_url is None
 
@@ -87,10 +88,10 @@ def test_no_preview_for_community_resources():
 def test_find_and_display_dataset(client, templates):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    dataset = DatasetFactory(extras={
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain
-    })
+    dataset = DatasetFactory(harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+    ))
 
     url = url_for('ods.preview', domain=domain, id=remote_id)
 
@@ -111,10 +112,11 @@ def test_dataset_not_found(client):
 def test_preview_disabled(client):
     domain = faker.domain_name()
     remote_id = faker.unique_string()
-    _ = DatasetFactory(extras={  # noqa
-        'harvest:remote_id': remote_id,
-        'harvest:domain': domain
-    })
+    _ = DatasetFactory(harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+        ods_url=faker.uri(),
+    ))
 
     url = url_for('ods.preview', domain=domain, id=remote_id)
 
