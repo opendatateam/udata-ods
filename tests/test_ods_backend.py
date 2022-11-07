@@ -110,6 +110,7 @@ def test_simple(rmock):
     assert d.harvest.remote_id == 'test-a'
     assert d.harvest.domain == DOMAIN
     assert d.harvest.ods_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
+    assert d.harvest.remote_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
     assert d.last_modified.date() == date.today()
     assert d.harvest.modified_at.date() == date(2015, 4, 9)
