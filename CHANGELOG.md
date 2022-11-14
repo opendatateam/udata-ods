@@ -1,6 +1,6 @@
 # Changelog
 
-## Current (in progress)
+## 3.0.0 (2022-11-14)
 
 - :warning: **Breaking change** Use harvest dynamic field introduced in udata 5 [#234](https://github.com/opendatateam/udata-ods/pull/234)
 - Store geojson format instead of json when relevant [#212](https://github.com/opendatateam/udata-ods/pull/212)
