@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 3.0.0 (2022-11-14)
 
 - :warning: **Breaking change** Use harvest dynamic field introduced in udata 5 [#234](https://github.com/opendatateam/udata-ods/pull/234)
