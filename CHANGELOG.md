@@ -2,6 +2,7 @@
 
 ## Current (in progress)
 
+- :warning: **Breaking change** Use harvest dynamic field introduced in udata 5 [#234](https://github.com/opendatateam/udata-ods/pull/234)
 - Store geojson format instead of json when relevant [#212](https://github.com/opendatateam/udata-ods/pull/212)
 - Replace mongo legacy image in CI [#221](https://github.com/opendatateam/udata-ods/pull/221)
 

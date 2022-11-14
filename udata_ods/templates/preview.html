@@ -35,8 +35,8 @@
         {% endif %}
 
         <ods-dataset-context context="preview"
-            preview-domain="{{ dataset.extras['harvest:domain'] }}"
-            preview-dataset="{{ dataset.extras['harvest:remote_id'] }}">
+            preview-domain="{{ dataset.harvest.domain }}"
+            preview-dataset="{{ dataset.harvest.remote_id }}">
             <ods-table context="preview" ods-auto-resize></ods-table>
             {# Displaying more than one widget requires some CSS and layout adjustments #}
             {#% if dataset.extras.get('ods:geo') %}

@@ -3,6 +3,7 @@ import os
 
 from dateutil.parser import parse as parse_date
 
+from udata.core.dataset.models import HarvestDatasetMetadata, HarvestResourceMetadata
 from udata.frontend.markdown import parse_html
 from udata.i18n import gettext as _
 from udata.harvest.backends.base import BaseBackend, HarvestFilter, HarvestFeature
@@ -149,13 +150,15 @@ class OdsBackend(BaseBackend):
             raise HarvestSkipException(msg.format(**ods_dataset))
 
         dataset = self.get_dataset(item.remote_id)
+        if not dataset.harvest:
+            dataset.harvest = HarvestDatasetMetadata()
 
         dataset.title = ods_metadata['title']
         dataset.frequency = 'unknown'
         description = ods_metadata.get('description', '').strip()
         dataset.description = parse_html(description)
         dataset.private = False
-        dataset.last_modified = ods_metadata['modified']
+        dataset.harvest.modified_at = ods_metadata['modified']
 
         tags = set()
         if 'keyword' in ods_metadata:
@@ -192,12 +195,12 @@ class OdsBackend(BaseBackend):
         self.process_extra_files(dataset, ods_dataset, 'alternative_export')
         self.process_extra_files(dataset, ods_dataset, 'attachment')
 
-        dataset.extras['ods:url'] = self.explore_url(dataset_id)
-        dataset.extras['remote_url'] = self.explore_url(dataset_id)
+        dataset.harvest.ods_url = self.explore_url(dataset_id)
+        dataset.harvest.remote_url = self.explore_url(dataset_id)
         if 'references' in ods_metadata:
-            dataset.extras['ods:references'] = ods_metadata['references']
-        dataset.extras['ods:has_records'] = ods_dataset['has_records']
-        dataset.extras['ods:geo'] = 'geo' in ods_dataset['features']
+            dataset.harvest.ods_references = ods_metadata['references']
+        dataset.harvest.ods_has_records = ods_dataset['has_records']
+        dataset.harvest.ods_geo = 'geo' in ods_dataset['features']
 
         return dataset
 
@@ -208,14 +211,16 @@ class OdsBackend(BaseBackend):
         for export in data.get(plural_type, []):
             url = self.extra_file_url(dataset_id, export['id'], plural_type)
             created, resource = self.get_resource(dataset, url)
+            if not resource.harvest:
+                resource.harvest = HarvestResourceMetadata()
             resource.title = export.get('title', 'No title')
             resource.description = export.get('description')
             resource.format = guess_format(export.get('mimetype'),
                                            export['url'])
             resource.mime = guess_mimetype(export.get('mimetype'),
                                            export['url'])
-            resource.modified = modified_at
-            resource.extras['ods:type'] = data_type
+            resource.harvest.modified_at = modified_at
+            resource.harvest.ods_type = data_type
             if created:
                 dataset.resources.append(resource)
 
@@ -236,13 +241,15 @@ class OdsBackend(BaseBackend):
             label, udata_format, mime = self.FORMATS[_format]
             url = self.download_url(dataset_id, _format)
             created, resource = self.get_resource(dataset, url)
+            if not resource.harvest:
+                resource.harvest = HarvestResourceMetadata()
             resource.title = _('{format} format export').format(format=label)
             resource.description = description
             resource.filetype = 'remote'
             resource.format = udata_format
             resource.mime = mime
-            resource.modified = modified_at
-            resource.extras['ods:type'] = 'api'
+            resource.harvest.modified_at = modified_at
+            resource.harvest.ods_type = 'api'
             if created:
                 dataset.resources.append(resource)
 

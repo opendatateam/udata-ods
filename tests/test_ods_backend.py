@@ -93,7 +93,7 @@ def test_simple(rmock):
     assert len(job.items) == 4
     assert job.status == 'done'
 
-    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    datasets = {d.harvest.remote_id: d for d in Dataset.objects}
     assert len(datasets) == 3
 
     assert 'test-a' in datasets
@@ -105,13 +105,15 @@ def test_simple(rmock):
                       'heritage',
                       'keyword1',
                       'keyword2']
-    assert d.extras['ods:references'] == 'http://example.com'
-    assert d.extras['ods:has_records']
-    assert d.extras['harvest:remote_id'] == 'test-a'
-    assert d.extras['harvest:domain'] == DOMAIN
-    assert d.extras['ods:url'] == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
+    assert d.harvest.ods_references == 'http://example.com'
+    assert d.harvest.ods_has_records
+    assert d.harvest.remote_id == 'test-a'
+    assert d.harvest.domain == DOMAIN
+    assert d.harvest.ods_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
+    assert d.harvest.remote_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
-    assert d.last_modified.date() == date(2015, 4, 9)
+    assert d.last_modified.date() == date.today()
+    assert d.harvest.modified_at.date() == date(2015, 4, 9)
 
     assert len(d.resources) == 2
     resource = d.resources[0]
@@ -124,7 +126,7 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=csv&timezone=Europe/Berlin'
                             '&use_labels_for_header=false')
-    assert resource.extras['ods:type'] == 'api'
+    assert resource.harvest.ods_type == 'api'
 
     resource = d.resources[1]
     assert resource.title == 'JSON format export'
@@ -136,7 +138,8 @@ def test_simple(rmock):
                             'explore/dataset/test-a/download'
                             '?format=json&timezone=Europe/Berlin'
                             '&use_labels_for_header=false')
-    assert resource.extras['ods:type'] == 'api'
+    assert resource.harvest.ods_type == 'api'
+    assert resource.harvest.modified_at.date() == date(2015, 4, 9)
 
     # test-b has geo feature
     assert 'test-b' in datasets
@@ -176,7 +179,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/alternative_exports'
                             '/gtfs_zip')
-    assert resource.extras['ods:type'] == 'alternative_export'
+    assert resource.harvest.ods_type == 'alternative_export'
 
     resource = test_b.resources[5]
     assert resource.title == 'Documentation'
@@ -186,7 +189,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/attachments'
                             '/documentation_pdf')
-    assert resource.extras['ods:type'] == 'attachment'
+    assert resource.harvest.ods_type == 'attachment'
 
     resource = test_b.resources[6]
     assert resource.title == 'Extra file'
@@ -196,7 +199,7 @@ def test_simple(rmock):
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/test-b/attachments'
                             '/extra_xls')
-    assert resource.extras['ods:type'] == 'attachment'
+    assert resource.harvest.ods_type == 'attachment'
 
     # test-c has no data
     assert 'test-c' not in datasets
@@ -219,7 +222,7 @@ def test_simple(rmock):
     actions.run(source.slug)
     source.reload()
 
-    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    datasets = {d.harvest.remote_id: d for d in Dataset.objects}
     assert len(datasets) == 3
     test_b = datasets['test-b']
     assert len(test_b.resources) == 7
@@ -251,8 +254,8 @@ def test_no_data():
     d = Dataset.objects.first()
 
     assert d.title == 'test attachments'
-    assert not d.extras['ods:has_records']
-    assert d.extras['harvest:remote_id'] == 'with-attachments'
+    assert not d.harvest.ods_has_records
+    assert d.harvest.remote_id == 'with-attachments'
 
     assert len(d.resources) == 2
 
@@ -264,7 +267,7 @@ def test_no_data():
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/with-attachments/alternative_exports'
                             '/gtfs_zip')
-    assert resource.extras['ods:type'] == 'alternative_export'
+    assert resource.harvest.ods_type == 'alternative_export'
 
     resource = d.resources[1]
     assert resource.title == 'Documentation'
@@ -274,7 +277,7 @@ def test_no_data():
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com'
                             '/api/datasets/1.0/with-attachments/attachments'
                             '/documentation_pdf')
-    assert resource.extras['ods:type'] == 'attachment'
+    assert resource.harvest.ods_type == 'attachment'
 
 
 @pytest.mark.frontend()
@@ -293,7 +296,7 @@ def test_exclude_inspire_default():
     assert len(job.items) == 1
     assert job.status == 'done'
 
-    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    datasets = {d.harvest.remote_id: d for d in Dataset.objects}
     assert len(datasets) == 0
 
 
@@ -314,7 +317,7 @@ def test_with_inspire_enabled():
     assert len(job.items) == 1
     assert job.status == 'done'
 
-    datasets = {d.extras['harvest:remote_id']: d for d in Dataset.objects}
+    datasets = {d.harvest.remote_id: d for d in Dataset.objects}
     assert len(datasets) == 1
 
     assert 'inspire' in datasets

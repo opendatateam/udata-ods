@@ -10,10 +10,7 @@ blueprint = Blueprint('ods', __name__, url_prefix='/ods',
 def preview(domain, id):
     if current_app.config.get('PREVIEW_MODE') is None:
         abort(404)
-    dataset = Dataset.objects(__raw__={
-        'extras.harvest:remote_id': id,
-        'extras.harvest:domain': domain
-    }).first()
+    dataset = Dataset.objects(harvest__remote_id=id, harvest__domain=domain).first()
     if not dataset:
         abort(404)
     return render_template('preview.html', dataset=dataset)
