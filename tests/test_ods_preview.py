@@ -71,6 +71,21 @@ def test_display_preview_only_for_ods_resources():
     assert resource.preview_url is None
 
 
+def test_display_preview_with_mixed_resources():
+    domain = faker.domain_name()
+    remote_id = faker.unique_string()
+    resource_ods = ResourceFactory(harvest=HarvestResourceMetadata(ods_type='api'))
+    resource_other = ResourceFactory()
+    _ = DatasetFactory(resources=[resource_other, resource_ods], harvest=HarvestDatasetMetadata(
+        remote_id=remote_id,
+        domain=domain,
+        ods_url='http://url.com'
+    ))
+
+    assert resource_ods.preview_url is not None
+    assert resource_other.preview_url is None
+
+
 def test_no_preview_for_community_resources():
     domain = faker.domain_name()
     remote_id = faker.unique_string()

@@ -11,7 +11,7 @@ class OdsPreview(PreviewPlugin):
         dataset = resource.dataset
         if not dataset.harvest or 'ods_url' not in dataset.harvest._data:
             return
-        return resource.harvest._data.get('ods_type') == 'api'
+        return resource.harvest and resource.harvest._data.get('ods_type') == 'api'
 
     def preview_url(self, resource):
         dataset = resource.dataset
