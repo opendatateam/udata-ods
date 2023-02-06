@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 3.0.1 (2023-02-06)
 
 - Fix can_explore on dataset with both ODS and non-ODS resources [#244](https://github.com/opendatateam/udata-ods/pull/244)
