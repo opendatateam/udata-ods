@@ -121,7 +121,7 @@ def test_simple(rmock):
     assert resource.description is not None
     assert resource.format == 'csv'
     assert resource.mime == 'text/csv'
-    assert isinstance(resource.modified, datetime)
+    assert isinstance(resource.harvest.modified_at, datetime)
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-a/download'
                             '?format=csv&timezone=Europe/Berlin'
@@ -133,7 +133,7 @@ def test_simple(rmock):
     assert resource.description is not None
     assert resource.format == 'json'
     assert resource.mime == 'application/json'
-    assert isinstance(resource.modified, datetime)
+    assert isinstance(resource.harvest.modified_at, datetime)
     assert resource.url == ('http://etalab-sandbox.opendatasoft.com/'
                             'explore/dataset/test-a/download'
                             '?format=json&timezone=Europe/Berlin'
