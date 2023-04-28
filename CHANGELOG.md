@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- :warning: Remove ods preview. Custom [udata tabular preview](https://github.com/opendatateam/udata-tabular-preview/) is preferred. [#246](https://github.com/opendatateam/udata-ods/pull/246)
 
 ## 3.0.1 (2023-02-06)
 

@@ -121,12 +121,6 @@ setup(
         'udata.models': [
             'ods = udata_ods.models',
         ],
-        'udata.views': [
-            'ods = udata_ods.views',
-        ],
-        'udata.preview': [
-            'ods = udata_ods.preview:OdsPreview',
-        ],
     },
     license='AGPL',
     zip_safe=False,
