@@ -10,6 +10,7 @@ from udata.models import Dataset, License
 from udata.core.organization.factories import OrganizationFactory
 from udata.harvest import actions
 from udata.harvest.tests.factories import HarvestSourceFactory
+from udata.i18n import gettext as _
 from udata.utils import faker
 
 from udata_ods.harvesters import OdsBackend
@@ -117,7 +118,7 @@ def test_simple(rmock):
 
     assert len(d.resources) == 2
     resource = d.resources[0]
-    assert resource.title == 'CSV format export'
+    assert resource.title == _('{format} format export').format(format='CSV')
     assert resource.description is not None
     assert resource.format == 'csv'
     assert resource.mime == 'text/csv'
@@ -129,7 +130,7 @@ def test_simple(rmock):
     assert resource.harvest.ods_type == 'api'
 
     resource = d.resources[1]
-    assert resource.title == 'JSON format export'
+    assert resource.title == _('{format} format export').format(format='JSON')
     assert resource.description is not None
     assert resource.format == 'json'
     assert resource.mime == 'application/json'
@@ -153,7 +154,7 @@ def test_simple(rmock):
     assert len(test_b.resources) == 7
     resource_ids = set([r.id for r in test_b.resources])
     resource = test_b.resources[2]
-    assert resource.title == 'GeoJSON format export'
+    assert resource.title == _('{format} format export').format(format='GeoJSON')
     assert resource.description is not None
     assert resource.format == 'geojson'
     assert resource.mime == 'application/vnd.geo+json'
@@ -162,7 +163,7 @@ def test_simple(rmock):
                             '?format=geojson&timezone=Europe/Berlin'
                             '&use_labels_for_header=false')
     resource = test_b.resources[3]
-    assert resource.title == 'Shapefile format export'
+    assert resource.title == _('{format} format export').format(format='Shapefile')
     assert resource.description is not None
     assert resource.format == 'shp'
     assert resource.mime is None
