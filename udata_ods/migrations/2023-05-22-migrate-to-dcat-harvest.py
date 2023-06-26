@@ -12,7 +12,7 @@ from udata_ods.harvesters import OdsBackend
 log = logging.getLogger(__name__)
 
 
-ODS_API_PATH = 'api/explore/v2.1'  # TODO: which to use between this one and 'api/v2' ?
+ODS_API_PATH = 'api/explore/v2.1'
 
 
 def dataset_v2_url(source_url, dataset_id):
@@ -46,16 +46,17 @@ def ods_to_dcat_catalog_url(url, config):
 
 
 def ods_to_target_url(source_url, dataset_id, resource):
-    if resource.harvest._data.get('ods_type') == 'api':
+    ods_type = resource.harvest._data.get('ods_type')
+    if ods_type == 'api':
         # build new download url
         base_url = dataset_v2_url(source_url, dataset_id)
         return f'{base_url}/exports/{resource.format}'
-    if resource.harvest._data.get('ods_type') in ['alternative_export', 'attachment']:
+    if ods_type in ['alternative_export', 'attachment']:
         # replace api path
         # TODO: why is it api/v2 here?
         return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
     # Not an ods harvested resource, returning as is
-    log.warning(f'Resource {resource} does not have a valid ods_type. ' +
+    log.warning(f'Resource {resource} does not have a valid ods_type ({ods_type}). ' +
                 'Something may be wrong with this resource.')
     return resource.url
 
@@ -77,6 +78,7 @@ def migrate(db):
             continue
         source.backend = 'dcat'
         source.url = ods_to_dcat_catalog_url(source_url, source.config)
+        # source.config["filters"] = None  #  TODO: remove now useless config
         source.save()
         source_count += 1
 
