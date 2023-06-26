@@ -87,7 +87,8 @@ def migrate(db):
         )
         for dataset in datasets:
             dataset.harvest.backend = 'DCAT'
-            dataset.harvest.remote_id = f'{dataset.harvest.remote_id}@agenceore'  # TODO: how to prefix?
+            # TODO: how to suffix remote_id?
+            dataset.harvest.remote_id = f'{dataset.harvest.remote_id}@agenceore'
             dataset.harvest.ods_url = None
             dataset.harvest.ods_references = None
             dataset.harvest.ods_has_records = None
