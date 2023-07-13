@@ -2,7 +2,7 @@
 
 ## Current (in progress)
 
-- Nothing yet
+- Add migration that removes duplicate resources [#248](https://github.com/opendatateam/udata-ods/pull/248)
 
 ## 3.0.1 (2023-02-06)
 
