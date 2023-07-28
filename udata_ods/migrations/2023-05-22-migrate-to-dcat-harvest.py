@@ -15,6 +15,10 @@ log = logging.getLogger(__name__)
 ODS_API_PATH = 'api/explore/v2.1'
 
 
+def dataset_home_url(source_url, dataset_id):
+    return f'{source_url}/explore/dataset/{dataset_id}/'
+
+
 def dataset_v2_url(source_url, dataset_id):
     return f'{source_url}/{ODS_API_PATH}/catalog/datasets/{dataset_id}'
 
@@ -52,8 +56,7 @@ def ods_to_target_url(source_url, dataset_id, resource):
         base_url = dataset_v2_url(source_url, dataset_id)
         return f'{base_url}/exports/{resource.format}'
     if ods_type in ['alternative_export', 'attachment']:
-        # replace api path
-        # TODO: why is it api/v2 here?
+        # replace api path: using api/v2 (instead of v2.1) has been confirmed by ODS
         return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
     # Not an ods harvested resource, returning as is
     log.warning(f'Resource {resource} does not have a valid ods_type ({ods_type}). ' +
@@ -87,8 +90,8 @@ def migrate(db):
         )
         for dataset in datasets:
             dataset.harvest.backend = 'DCAT'
-            # TODO: how to suffix remote_id?
-            dataset.harvest.remote_id = f'{dataset.harvest.remote_id}@agenceore'
+            # remote_id is now the URI of the dataset
+            dataset.harvest.remote_id = dataset_home_url(source_url, dataset.harvest.remote_id)
             dataset.harvest.ods_url = None
             dataset.harvest.ods_references = None
             dataset.harvest.ods_has_records = None
