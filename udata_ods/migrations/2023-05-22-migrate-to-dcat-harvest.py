@@ -89,6 +89,7 @@ def migrate(db):
             harvest__source_id=str(source.id)
         )
         for dataset in datasets:
+            previous_remote_id = dataset.harvest.remote_id
             dataset.harvest.backend = 'DCAT'
             # remote_id is now the URI of the dataset
             dataset.harvest.remote_id = dataset_home_url(source_url, dataset.harvest.remote_id)
@@ -100,8 +101,7 @@ def migrate(db):
             for resource in dataset.resources:
                 # Ignore resources that haven't been harvested
                 if resource.harvest:
-                    remote_id_stripped = dataset.harvest.remote_id.split("@")[0]
-                    resource.url = ods_to_target_url(source_url, remote_id_stripped, resource)
+                    resource.url = ods_to_target_url(source_url, previous_remote_id, resource)
                     resource.harvest.ods_type = None
 
             dataset.save()
