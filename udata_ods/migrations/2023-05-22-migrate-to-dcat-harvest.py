@@ -2,7 +2,7 @@
 Migrate ODS harvest sources to a DCAT backend
 '''
 import logging
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from udata.models import Dataset
 from udata.harvest.models import HarvestSource
@@ -24,7 +24,7 @@ def dataset_v2_url(source_url, dataset_id):
 
 
 def dcat_catalog_url(source_url):
-    return f'{source_url}/{ODS_API_PATH}/catalog/exports/dcat'
+    return f'{source_url}/{ODS_API_PATH}/catalog/exports/dcat/'
 
 
 def build_where_clause(filters):
@@ -35,7 +35,7 @@ def build_where_clause(filters):
         ods_key = OdsBackend.FILTERS.get(f['key'], f['key'])
         op = 'NOT ' if f.get('type') == 'exclude' else ''
         params.append(op + ods_key + f'="{f["value"]}"')
-    where_clause = 'where=' + ' AND '.join(params)
+    where_clause = {"where": ' AND '.join(params)}
     return where_clause
 
 
@@ -43,10 +43,9 @@ def ods_to_dcat_catalog_url(url, config):
     dcat_url = dcat_catalog_url(url)
     if not config['filters']:
         return dcat_url
-    where_clause = build_where_clause(config['filters'])
-    # TODO: should we urlencode(where_clause)?
-    # It would be less readable though
-    return f'{dcat_url}/?{where_clause}'
+    params = build_where_clause(config['filters'])
+    params['include_exports'] = 'json,csv,shp,geojson'
+    return f'{dcat_url}?{urlencode(params)}'
 
 
 def ods_to_target_url(source_url, dataset_id, resource):
@@ -68,7 +67,6 @@ def migrate(db):
     log.info('Processing Harvest Sources.')
 
     sources = HarvestSource.objects(backend='ods').no_cache().timeout(False)
-    sources = sources.filter(id='5b130bb0c751df05bac4e2b0')  # TODO: remove this filter
 
     dataset_count = 0
     source_count = 0
