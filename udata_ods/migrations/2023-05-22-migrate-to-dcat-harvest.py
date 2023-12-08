@@ -2,6 +2,7 @@
 Migrate ODS harvest sources to a DCAT backend
 '''
 import logging
+import requests
 from urllib.parse import urlencode, urlparse
 
 from udata.models import Dataset
@@ -54,7 +55,15 @@ def ods_to_target_url(source_url, dataset_id, resource):
         # build new download url
         base_url = dataset_v2_url(source_url, dataset_id)
         return f'{base_url}/exports/{resource.format}'
-    if ods_type in ['alternative_export', 'attachment']:
+    if ods_type == 'attachment':
+        # replace api path: using api/v2 (instead of v2.1) has been confirmed by ODS
+        return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
+    if ods_type == 'alternative_export':
+        # Check if final url differs from ODS resource url (ignoring netloc or scheme redirects)
+        # Final url will be exposed as downloadURL in DCAT export
+        final_url = requests.head(resource.url, allow_redirects=True).url
+        if urlparse(final_url).path != urlparse(resource.url).path:
+            return final_url
         # replace api path: using api/v2 (instead of v2.1) has been confirmed by ODS
         return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
     # Not an ods harvested resource, returning as is
