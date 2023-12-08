@@ -30,6 +30,8 @@ def dcat_catalog_url(source_url):
 def build_where_clause(filters):
     # TODO: check how to build where clause?
     # TODO: check for inspire
+    if not filters:
+        return {}
     params = []
     for f in filters:
         ods_key = OdsBackend.FILTERS.get(f['key'], f['key'])
@@ -41,8 +43,6 @@ def build_where_clause(filters):
 
 def ods_to_dcat_catalog_url(url, config):
     dcat_url = dcat_catalog_url(url)
-    if not config['filters']:
-        return dcat_url
     params = build_where_clause(config['filters'])
     params['include_exports'] = 'json,csv,shp,geojson'
     return f'{dcat_url}?{urlencode(params)}'
