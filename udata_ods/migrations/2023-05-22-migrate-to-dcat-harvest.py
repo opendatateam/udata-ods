@@ -20,8 +20,8 @@ def dataset_home_url(source_url, dataset_id):
     return f'{source_url}/explore/dataset/{dataset_id}/'
 
 
-def dataset_v2_url(source_url, dataset_id):
-    return f'{source_url}/{ODS_API_PATH}/catalog/datasets/{dataset_id}'
+def dataset_v2_url(source_url, dataset_id, format):
+    return f'{source_url}/{ODS_API_PATH}/catalog/datasets/{dataset_id}/exports/{format}'
 
 
 def dcat_catalog_url(source_url):
@@ -29,8 +29,6 @@ def dcat_catalog_url(source_url):
 
 
 def build_where_clause(filters):
-    # TODO: check how to build where clause?
-    # TODO: check for inspire
     if not filters:
         return {}
     params = []
@@ -44,7 +42,7 @@ def build_where_clause(filters):
 
 def ods_to_dcat_catalog_url(url, config):
     dcat_url = dcat_catalog_url(url)
-    params = build_where_clause(config['filters'])
+    params = build_where_clause(config.get('filters'))
     params['include_exports'] = 'json,csv,shp,geojson'
     return f'{dcat_url}?{urlencode(params)}'
 
@@ -53,8 +51,7 @@ def ods_to_target_url(source_url, dataset_id, resource):
     ods_type = resource.harvest._data.get('ods_type')
     if ods_type == 'api':
         # build new download url
-        base_url = dataset_v2_url(source_url, dataset_id)
-        return f'{base_url}/exports/{resource.format}'
+        return dataset_v2_url(source_url, dataset_id, resource.format)
     if ods_type == 'attachment':
         # replace api path: using api/v2 (instead of v2.1) has been confirmed by ODS
         return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
@@ -67,7 +64,7 @@ def ods_to_target_url(source_url, dataset_id, resource):
         # replace api path: using api/v2 (instead of v2.1) has been confirmed by ODS
         return resource.url.replace("/api/datasets/1.0/", "/api/v2/catalog/datasets/")
     # Not an ods harvested resource, returning as is
-    log.warning(f'Resource {resource} does not have a valid ods_type ({ods_type}). ' +
+    log.warning(f'Resource {resource.id} does not have a valid ods_type ({ods_type}). ' +
                 'Something may be wrong with this resource.')
     return resource.url
 
@@ -82,24 +79,25 @@ def migrate(db):
     for source in sources:
         source_url = source.url.rstrip('/')
         if urlparse(source_url).path != '':
-            # TODO: what to do with these?
+            # We are logging a warning on sources that don't have a root ODS url
             log.warning(f'Skipping the source {source.id} (status:{source.validation.state}). ' +
                         f'It has an URL that is not a root ODS URL: {source_url}.')
             continue
         source.backend = 'dcat'
         source.url = ods_to_dcat_catalog_url(source_url, source.config)
-        # source.config["filters"] = None  #  TODO: remove now useless config
+        source.config["filters"] = None
         source.save()
         source_count += 1
 
         datasets = Dataset.objects(
             harvest__source_id=str(source.id)
-        )
+        ).no_cache().timeout(False)
         for dataset in datasets:
             previous_remote_id = dataset.harvest.remote_id
             dataset.harvest.backend = 'DCAT'
             # remote_id is now the URI of the dataset
             dataset.harvest.remote_id = dataset_home_url(source_url, dataset.harvest.remote_id)
+            # removing ODS harvest metadata
             dataset.harvest.ods_url = None
             dataset.harvest.ods_references = None
             dataset.harvest.ods_has_records = None
