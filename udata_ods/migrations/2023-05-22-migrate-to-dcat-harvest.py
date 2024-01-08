@@ -44,6 +44,7 @@ def ods_to_dcat_catalog_url(url, config):
     dcat_url = dcat_catalog_url(url)
     params = build_where_clause(config.get('filters'))
     params['include_exports'] = 'json,csv,shp,geojson'
+    params['lang'] = 'fr'
     return f'{dcat_url}?{urlencode(params)}'
 
 
