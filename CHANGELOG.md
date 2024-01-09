@@ -1,5 +1,9 @@
 # Changelog
 
+## Current (in progress)
+
+- Nothing yet
+
 ## 4.0.0 (2024-01-09)
 
 - :warning: Add migration from ODS to DCAT [#247](https://github.com/opendatateam/udata-ods/pull/247)
