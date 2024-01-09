@@ -1,6 +1,6 @@
 # Changelog
 
-## Current (in progress)
+## 4.0.0 (2024-01-09)
 
 - :warning: Add migration from ODS to DCAT [#247](https://github.com/opendatateam/udata-ods/pull/247)
     - All ODS harvest sources are converted to DCAT
