@@ -5,6 +5,7 @@
 - :warning: Add migration from ODS to DCAT [#247](https://github.com/opendatateam/udata-ods/pull/247)
     - All ODS harvest sources are converted to DCAT
     - Datasets are updated with new remote_id and new resources urls
+- Add migration that removes duplicate resources [#248](https://github.com/opendatateam/udata-ods/pull/248)
 
 ## 3.0.1 (2023-02-06)
 
