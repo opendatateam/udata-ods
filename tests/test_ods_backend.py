@@ -113,8 +113,8 @@ def test_simple(rmock):
     assert d.harvest.ods_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.harvest.remote_url == 'http://etalab-sandbox.opendatasoft.com/explore/dataset/test-a/'  # noqa
     assert d.license.id == 'fr-lo'
-    assert d.last_modified.date() == date.today()
     assert d.harvest.modified_at.date() == date(2015, 4, 9)
+    assert d.last_modified.date() == d.harvest.modified_at.date()
 
     assert len(d.resources) == 2
     resource = d.resources[0]
@@ -141,6 +141,7 @@ def test_simple(rmock):
                             '&use_labels_for_header=false')
     assert resource.harvest.ods_type == 'api'
     assert resource.harvest.modified_at.date() == date(2015, 4, 9)
+    assert resource.last_modified.date() == resource.harvest.modified_at.date()
 
     # test-b has geo feature
     assert 'test-b' in datasets
